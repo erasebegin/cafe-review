@@ -1,19 +1,17 @@
-# Astro Starter Kit: Blog
+# Cafe Review
 
-```sh
-pnpm create astro@latest -- --template blog
-```
+A modern, fast blog for cafe reviews and coffee culture, built with Astro and powered by Sanity CMS.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Features
 
-Features:
-
-- ✅ Minimal styling (make it your own!)
+- ✅ Blazing fast static site generation with Astro
+- ✅ Sanity CMS integration for content management
 - ✅ 100/100 Lighthouse performance
 - ✅ SEO-friendly with canonical URLs and OpenGraph data
 - ✅ Sitemap support
 - ✅ RSS Feed support
-- ✅ Markdown & MDX support
+- ✅ Markdown & MDX support for rich content
+- ✅ Minimal, customizable styling
 
 ## 🚀 Project Structure
 
@@ -53,10 +51,19 @@ All commands are run from the root of the project, from a terminal:
 | `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
 | `pnpm astro -- --help` | Get help using the Astro CLI                     |
 
-## 👀 Want to learn more?
+## 📚 Learn More
 
-Check out [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+- [Astro Documentation](https://docs.astro.build)
+- [Sanity Documentation](https://www.sanity.io/docs)
+- [Astro Discord](https://astro.build/chat)
 
-## Credit
+## Tech Stack
 
-This theme is based off of the lovely [Bear Blog](https://github.com/HermanMartinus/bearblog/).
+- **Framework**: Astro v5.13.5
+- **CMS**: Sanity
+- **Language**: TypeScript
+- **Package Manager**: pnpm
+
+## Credits
+
+Built with Astro's blog starter template, inspired by [Bear Blog](https://github.com/HermanMartinus/bearblog/).
