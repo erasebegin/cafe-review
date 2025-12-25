@@ -1,0 +1,367 @@
+---
+import { Image } from 'astro:assets';
+import { getSiteConfig } from '../lib/sanity-utils';
+import chrisMap from '../assets/Chris_Map.jpg';
+
+interface Props {
+  cityName?: string;
+  bannerImageUrls?: string[];
+  showScrollIndicator?: boolean;
+}
+
+const { cityName, bannerImageUrls, showScrollIndicator = false } = Astro.props;
+const hasMultipleImages = bannerImageUrls && bannerImageUrls.length > 1;
+
+let title = 'Cafe Review';
+
+try {
+  const siteConfig = await getSiteConfig();
+  if (siteConfig) {
+    title = siteConfig.title || title;
+  }
+} catch (error) {
+  console.error('Failed to load site config:', error);
+}
+---
+
+<section class="hero">
+  <div class="hero-image">
+    {bannerImageUrls && bannerImageUrls.length > 0 ? (
+      bannerImageUrls.map((url, index) => (
+        <img 
+          key={index}
+          src={url} 
+          alt={cityName ? `${cityName} hero background ${index + 1}` : `Cafe hero background ${index + 1}`}
+          class={`hero-slide ${index === 0 ? 'active' : ''}`}
+          data-slide-index={index}
+        />
+      ))
+    ) : (
+      <Image src={chrisMap} alt="Cafe hero background" />
+    )}
+  </div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="title-container">
+      <h1 class="site-title">{title}</h1>
+      {cityName && (
+        <p class="city-subtitle">{cityName}</p>
+      )}
+    </div>
+    {showScrollIndicator ? (
+      <div class="scroll-indicator" aria-label="Scroll down">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+        </svg>
+      </div>
+    ) : (
+      <a href="/berlin" class="map-pin" style="top: 55%; left: 63%;" aria-label="Berlin">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 0C7.802 0 4.403 3.403 4.403 7.602c0 5.44 7.597 16.398 7.597 16.398s7.597-10.958 7.597-16.398C19.597 3.403 16.198 0 12 0zm0 11.5c-2.209 0-4-1.791-4-4s1.791-4 4-4 4 1.791 4 4-1.791 4-4 4z"/>
+        </svg>
+        <span class="pin-label">Berlin</span>
+      </a>
+    )}
+  </div>
+</section>
+
+{hasMultipleImages && (
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const slides = document.querySelectorAll('.hero-slide');
+      if (slides.length <= 1) return;
+
+      let currentSlide = 0;
+
+      function showNextSlide() {
+        // Remove active class from current slide
+        slides[currentSlide].classList.remove('active');
+        
+        // Move to next slide
+        currentSlide = (currentSlide + 1) % slides.length;
+        
+        // Add active class to new slide
+        slides[currentSlide].classList.add('active');
+      }
+
+      // Change slide every 10 seconds
+      setInterval(showNextSlide, 10000);
+    });
+  </script>
+)}
+
+<style>
+  .hero {
+    position: relative;
+    height: 100vh;
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .hero-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+
+  .hero-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .hero-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out;
+  }
+
+  .hero-slide.active {
+    opacity: 1;
+  }
+
+  .hero-fallback-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #8B4513 0%, #D2691E 25%, #CD853F 50%, #F4A460 75%, #DEB887 100%);
+    z-index: 1;
+  }
+
+  .hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(167, 199, 199, 0.3); /* Sky Blue overlay */
+    z-index: 2;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 3;
+    width: 100%;
+    height: 100%;
+  }
+
+  .title-container {
+    position: absolute;
+    top: 8rem;
+    left: 5rem;
+    z-index: 4;
+  }
+
+  .site-title {
+    color: var(--ink-brown);
+    font-size: 5rem;
+    font-weight: 700;
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.7);
+  }
+
+  .city-subtitle {
+    position: relative;
+    color: var(--ink-brown);
+    font-size: 3rem;
+    font-weight: 500;
+    margin: 0.5rem 0 0 0;
+    text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.7);
+  }
+
+  .map-pin {
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    color: var(--latte-orange);
+    cursor: pointer;
+    transform: translate(-50%, -100%);
+    transition: all 0.3s ease;
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
+    text-decoration: none;
+  }
+
+  .map-pin:hover {
+    color: var(--maple-brown);
+    transform: translate(-50%, -100%) scale(1.2);
+  }
+
+  .map-pin svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .pin-label {
+    cursor: pointer;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 1.5rem;
+    white-space: nowrap;
+    margin-top: 0.25rem;
+  }
+
+  .scroll-indicator {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 48px;
+    height: 48px;
+    color: white;
+    cursor: pointer;
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
+    animation: bounce 2s ease-in-out infinite;
+  }
+
+  .scroll-indicator svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  @keyframes bounce {
+    0%, 100% {
+      transform: translateX(-50%) translateY(0);
+    }
+    50% {
+      transform: translateX(-50%) translateY(10px);
+    }
+  }
+
+
+  .hero-title {
+    color: white;
+    font-size: 4rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    line-height: 1.1;
+  }
+
+  .hero-subtitle {
+    font-size: 1.5rem;
+    font-weight: 300;
+    margin: 0 0 2rem 0;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+    opacity: 0.9;
+  }
+
+  .hero-cta {
+    margin-top: 2rem;
+  }
+
+  .cta-button {
+    display: inline-block;
+    padding: 1rem 2rem;
+    background: #ff6b35;
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+  }
+
+  .cta-button:hover {
+    background: #e55a2b;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+  }
+
+  /* Responsive design */
+  @media (max-width: 768px) {
+    .title-container {
+      top: 1rem;
+      left: 1rem;
+    }
+
+    .site-title {
+      font-size: 2rem;
+    }
+
+    .city-subtitle {
+      font-size: 1.5rem;
+    }
+
+    .map-pin {
+      width: 36px;
+      height: 36px;
+    }
+
+    .scroll-indicator {
+      width: 40px;
+      height: 40px;
+      bottom: 1.5rem;
+    }
+
+    .hero-title {
+      font-size: 2.5rem;
+    }
+
+    .hero-subtitle {
+      font-size: 1.2rem;
+    }
+
+    .hero-content {
+      padding: 0 1rem;
+    }
+
+    .cta-button {
+      padding: 0.8rem 1.6rem;
+      font-size: 1rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .site-title {
+      font-size: 1.5rem;
+    }
+
+    .city-subtitle {
+      font-size: 1.2rem;
+    }
+
+    .map-pin {
+      width: 32px;
+      height: 32px;
+    }
+
+    .scroll-indicator {
+      width: 36px;
+      height: 36px;
+      bottom: 1rem;
+    }
+
+    .hero-title {
+      font-size: 2rem;
+    }
+
+    .hero-subtitle {
+      font-size: 1rem;
+    }
+  }
+</style>

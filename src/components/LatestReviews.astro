@@ -1,0 +1,136 @@
+---
+import { getAllBlogPosts } from '../lib/sanity-utils';
+import ReviewCard from './ReviewCard.astro';
+import LocationDropdown from './LocationDropdown.astro';
+
+let cafes = [];
+
+try {
+  const posts = await getAllBlogPosts();
+  cafes = posts; // Show all cafes for filtering
+} catch (error) {
+  console.error('Failed to load latest cafes:', error);
+}
+---
+
+<section class="latest-reviews">
+  <div class="container">
+    <div class="location-filter">
+      <LocationDropdown />
+    </div>
+    {cafes.length > 0 ? (
+      <div class="reviews-grid">
+        {cafes.map((cafe) => (
+          <ReviewCard
+            title={cafe.title}
+            slug={cafe.slug}
+            description={cafe.description}
+            heroImage={cafe.heroImage}
+            rating={cafe.rating}
+            location={cafe.location}
+          />
+        ))}
+      </div>
+      
+      <div class="section-footer">
+        <a href="/reviews" class="view-all-button">View All Reviews</a>
+      </div>
+    ) : (
+      <div class="no-reviews">
+        <p>No reviews available at the moment. Check back soon!</p>
+      </div>
+    )}
+  </div>
+</section>
+
+<style>
+  .latest-reviews {
+    padding: 4rem 0;
+    background: #fafafa;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  .location-filter {
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: center;
+  }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .section-header h2 {
+    font-size: 2.5rem;
+    color: #333;
+    margin: 0 0 1rem 0;
+    font-weight: 700;
+  }
+
+  .section-header p {
+    font-size: 1.1rem;
+    color: #666;
+    margin: 0;
+  }
+
+  .reviews-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+
+  .section-footer {
+    text-align: center;
+  }
+
+  .view-all-button {
+    display: inline-block;
+    padding: 1rem 2rem;
+    background: #ff6b35;
+    color: white;
+    text-decoration: none;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+  }
+
+  .view-all-button:hover {
+    background: #e55a2b;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+  }
+
+  .no-reviews {
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+  }
+
+  /* Responsive design */
+  @media (max-width: 768px) {
+    .latest-reviews {
+      padding: 3rem 0;
+    }
+
+    .container {
+      padding: 0 1rem;
+    }
+
+    .reviews-grid {
+      gap: 1.25rem;
+    }
+
+    .section-header h2 {
+      font-size: 2rem;
+    }
+
+  }
+</style>

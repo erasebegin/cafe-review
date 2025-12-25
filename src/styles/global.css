@@ -5,16 +5,29 @@
  */
 
 :root {
-	--accent: #2337ff;
-	--accent-dark: #000d8a;
-	--black: 15, 18, 25;
-	--gray: 96, 115, 159;
-	--gray-light: 229, 233, 240;
-	--gray-dark: 34, 41, 57;
-	--gray-gradient: rgba(var(--gray-light), 50%), #fff;
+	/* Primary Colors */
+	--latte-orange: #F4A261;
+	--maple-brown: #E76F51;
+	
+	/* Secondary Colors */
+	--butter-yellow: #F6C971;
+	--clay-pink: #E9AFAF;
+	
+	/* Neutrals */
+	--paper-beige: #F4E1C1;
+	--ink-brown: #3B2F2F;
+	--sky-blue: #A7C7C7;
+	
+	/* Legacy mappings for compatibility */
+	--accent: var(--latte-orange);
+	--accent-dark: var(--maple-brown);
+	--black: 59, 47, 47; /* Ink Brown as RGB */
+	--gray: 167, 199, 199; /* Sky Blue as RGB */
+	--gray-light: 244, 225, 193; /* Paper Beige as RGB */
+	--gray-dark: 59, 47, 47; /* Ink Brown as RGB */
 	--box-shadow:
-		0 2px 6px rgba(var(--gray), 25%), 0 8px 24px rgba(var(--gray), 33%), 0 16px 32px
-		rgba(var(--gray), 33%);
+		0 2px 6px rgba(59, 47, 47, 0.15), 0 8px 24px rgba(59, 47, 47, 0.2), 0 16px 32px
+		rgba(59, 47, 47, 0.2);
 }
 @font-face {
 	font-family: "Atkinson";
@@ -35,11 +48,10 @@ body {
 	margin: 0;
 	padding: 0;
 	text-align: left;
-	background: linear-gradient(var(--gray-gradient)) no-repeat;
-	background-size: 100% 600px;
+	background: var(--paper-beige);
 	word-wrap: break-word;
 	overflow-wrap: break-word;
-	color: rgb(var(--gray-dark));
+	color: var(--ink-brown);
 	font-size: 20px;
 	line-height: 1.7;
 }
@@ -56,7 +68,7 @@ h4,
 h5,
 h6 {
 	margin: 0 0 0.5rem 0;
-	color: rgb(var(--black));
+	color: var(--maple-brown);
 	line-height: 1.2;
 }
 h1 {
@@ -79,10 +91,10 @@ b {
 	font-weight: 700;
 }
 a {
-	color: var(--accent);
+	color: var(--latte-orange);
 }
 a:hover {
-	color: var(--accent);
+	color: var(--maple-brown);
 }
 p {
 	margin-bottom: 1em;
@@ -107,7 +119,7 @@ img {
 }
 code {
 	padding: 2px 5px;
-	background-color: rgb(var(--gray-light));
+	background-color: var(--paper-beige);
 	border-radius: 2px;
 }
 pre {
@@ -118,14 +130,14 @@ pre > code {
 	all: unset;
 }
 blockquote {
-	border-left: 4px solid var(--accent);
+	border-left: 4px solid var(--latte-orange);
 	padding: 0 0 0 20px;
 	margin: 0px;
 	font-size: 1.333em;
 }
 hr {
 	border: none;
-	border-top: 1px solid rgb(var(--gray-light));
+	border-top: 1px solid var(--clay-pink);
 }
 @media (max-width: 720px) {
 	body {

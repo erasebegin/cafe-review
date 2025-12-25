@@ -1,0 +1,220 @@
+---
+interface Props {
+  title: string;
+  slug: string;
+  description?: string;
+  heroImage?: string;
+  rating?: number;
+  location?: {
+    name?: string;
+    slug?: string;
+  };
+}
+
+const { title, slug, description, heroImage, rating, location } = Astro.props;
+
+const averageRating = rating || 0;
+const featuredImageUrl = heroImage || '';
+const locationName = location?.name || '';
+const locationSlug = location?.slug || '';
+---
+
+<article class="review-card" data-location={locationSlug}>
+  <div class="review-image">
+    {featuredImageUrl ? (
+      <img 
+        src={featuredImageUrl} 
+        alt={title}
+        loading="lazy"
+      />
+    ) : (
+      <div class="image-placeholder">
+        <span>No Image</span>
+      </div>
+    )}
+    <div class="rating-badge">
+      <span class="rating-number">{averageRating}</span>
+      <div class="rating-stars">
+        {Array.from({ length: 5 }, (_, i) => (
+          <span class={`star ${i < Math.round(averageRating) ? 'filled' : 'empty'}`}>★</span>
+        ))}
+      </div>
+    </div>
+  </div>
+  
+  <div class="review-content">
+    <div class="review-header">
+      <h3 class="review-title">{title}</h3>
+      {locationName && (
+        <span class="review-location">{locationName}</span>
+      )}
+    </div>
+    
+    {description && (
+      <p class="review-description">{description}</p>
+    )}
+    
+    <div class="review-meta">
+      <span class="rating-display">Rating: {averageRating}/5</span>
+    </div>
+    
+    <a href={`/blog/${slug}`} class="read-more">
+      Read Full Review →
+    </a>
+  </div>
+</article>
+
+<style>
+  .review-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: row;
+  }
+
+  .review-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  .review-image {
+    position: relative;
+    width: 280px;
+    min-width: 280px;
+    overflow: hidden;
+  }
+
+  .review-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: transform 0.3s ease;
+  }
+
+  .review-card:hover .review-image img {
+    transform: scale(1.05);
+  }
+
+  .image-placeholder {
+    width: 100%;
+    height: 100%;
+    background: #e1e1e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+  }
+
+  .rating-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 8px;
+    padding: 0.5rem;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .rating-number {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #ff6b35;
+    margin-bottom: 0.2rem;
+  }
+
+  .rating-stars {
+    display: flex;
+    gap: 1px;
+    justify-content: center;
+  }
+
+  .star {
+    font-size: 0.8rem;
+  }
+
+  .star.filled {
+    color: #ff6b35;
+  }
+
+  .star.empty {
+    color: #ddd;
+  }
+
+  .review-content {
+    padding: 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .review-header {
+    margin-bottom: 1rem;
+  }
+
+  .review-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .review-location {
+    color: #666;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .review-location:before {
+    content: "📍";
+    margin-right: 0.3rem;
+  }
+
+  .review-description {
+    color: #555;
+    line-height: 1.6;
+    margin: 0 0 1rem 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .review-meta {
+    margin-bottom: 1.5rem;
+  }
+
+  .read-more {
+    color: #ff6b35;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+  }
+
+  .read-more:hover {
+    color: #e55a2b;
+  }
+
+  /* Responsive design */
+  @media (max-width: 768px) {
+    .review-card {
+      flex-direction: column;
+    }
+
+    .review-image {
+      width: 100%;
+      height: 200px;
+    }
+
+    .review-content {
+      padding: 1.2rem;
+    }
+  }
+</style>

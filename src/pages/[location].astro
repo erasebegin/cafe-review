@@ -1,0 +1,175 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Hero from '../components/Hero.astro';
+import ReviewCard from '../components/ReviewCard.astro';
+import { getAllLocations, getAllBlogPosts, getSiteConfig } from '../lib/sanity-utils';
+import { urlFor } from '../lib/sanity';
+
+export async function getStaticPaths() {
+  const locations = await getAllLocations();
+  
+  return locations.map((location) => ({
+    params: { location: location.slug.current },
+    props: { location }
+  }));
+}
+
+const { location } = Astro.props;
+const allCafes = await getAllBlogPosts();
+
+// Filter cafes for this location
+const locationCafes = allCafes.filter(cafe => 
+  cafe.location?.slug === location.slug.current
+);
+
+let siteTitle = 'Cafe Reviews';
+let siteDescription = 'Discovering the perfect cup, one cafe at a time';
+
+try {
+  const siteConfig = await getSiteConfig();
+  if (siteConfig) {
+    siteTitle = siteConfig.title || siteTitle;
+    siteDescription = siteConfig.description || siteDescription;
+  }
+} catch (error) {
+  console.error('Failed to load site config for meta tags:', error);
+}
+
+const pageTitle = `${location.cityName} Cafes - ${siteTitle}`;
+const pageDescription = location.description || `Discover the best cafes in ${location.cityName}`;
+
+// Get all banner images from bannerImages array
+const bannerImageUrls = location.bannerImages?.map(image => 
+  urlFor(image).width(1920).height(1080).url()
+) || [];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead title={pageTitle} description={pageDescription} />
+  </head>
+  <body>
+    <main class="homepage-main">
+      <Hero cityName={location.cityName} bannerImageUrls={bannerImageUrls} showScrollIndicator={true} />
+      
+      <section class="location-reviews">
+        <div class="container">
+          <div class="section-header">
+            <h2>{location.cityName} Cafes</h2>
+            {location.description && (
+              <p class="location-description">{location.description}</p>
+            )}
+            <a href="/" class="back-link">← Back to all locations</a>
+          </div>
+
+          {locationCafes.length > 0 ? (
+            <div class="reviews-grid">
+              {locationCafes.map((cafe) => (
+                <ReviewCard
+                  title={cafe.title}
+                  slug={cafe.slug}
+                  description={cafe.description}
+                  heroImage={cafe.heroImage}
+                  rating={cafe.rating}
+                  location={cafe.location}
+                />
+              ))}
+            </div>
+          ) : (
+            <div class="no-reviews">
+              <p>No reviews available for {location.cityName} yet. Check back soon!</p>
+            </div>
+          )}
+        </div>
+      </section>
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style>
+  .homepage-main {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .location-reviews {
+    padding: 4rem 0;
+    background: #fafafa;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .section-header h2 {
+    font-size: 2.5rem;
+    color: #333;
+    margin: 0 0 1rem 0;
+    font-weight: 700;
+  }
+
+  .location-description {
+    font-size: 1.1rem;
+    color: #666;
+    margin: 0 0 1rem 0;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .back-link {
+    display: inline-block;
+    color: #ff6b35;
+    text-decoration: none;
+    font-weight: 600;
+    margin-top: 1rem;
+    transition: color 0.3s ease;
+  }
+
+  .back-link:hover {
+    color: #e55a2b;
+  }
+
+  .reviews-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .no-reviews {
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+  }
+
+  /* Responsive design */
+  @media (max-width: 768px) {
+    .location-reviews {
+      padding: 3rem 0;
+    }
+
+    .container {
+      padding: 0 1rem;
+    }
+
+    .reviews-grid {
+      gap: 1.25rem;
+    }
+
+    .section-header h2 {
+      font-size: 2rem;
+    }
+  }
+</style>

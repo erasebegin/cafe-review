@@ -1,0 +1,402 @@
+---
+// Demo component to test Strapi connection
+const STRAPI_URL = 'https://cms.cafereview.eu';
+const API_TOKEN = '4cfa79e646207714672ac68c8a668c112a2966eb9f637889263942bf86cbd30ae932a03616c0ff404940aee19526fc2835c89dadfb8f6d79e23269f5df9d3ae177b160c5a60c5df3efd95d1ee1fb4bb6568546e63548a4a880c34433c2c3d4ca6e3a9fa35bbed5643a6d3aae2b65828c369534310df30a2168287c4764951abc';
+
+let images = [];
+let cafes = [];
+let siteConfig = null;
+let fileError = null;
+let cafesError = null;
+let siteConfigError = null;
+
+// Test file uploads (known to work)
+try {
+  const response = await fetch(`${STRAPI_URL}/api/upload/files`, {
+    headers: {
+      'Authorization': `Bearer ${API_TOKEN}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (response.ok) {
+    images = await response.json();
+  } else {
+    fileError = `Failed to fetch files: ${response.status} ${response.statusText}`;
+  }
+} catch (err) {
+  fileError = err.message;
+}
+
+// Test cafes endpoint
+try {
+  const response = await fetch(`${STRAPI_URL}/api/cafes?populate=*`, {
+    headers: {
+      'Authorization': `Bearer ${API_TOKEN}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    cafes = data.data || [];
+  } else {
+    cafesError = `Failed to fetch cafes: ${response.status} ${response.statusText}`;
+  }
+} catch (err) {
+  cafesError = err.message;
+}
+
+// Test site config endpoint
+try {
+  const response = await fetch(`${STRAPI_URL}/api/site-config?populate=*`, {
+    headers: {
+      'Authorization': `Bearer ${API_TOKEN}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    siteConfig = data.data;
+  } else {
+    siteConfigError = `Failed to fetch site config: ${response.status} ${response.statusText}`;
+  }
+} catch (err) {
+  siteConfigError = err.message;
+}
+---
+
+<section class="strapi-demo">
+  <div class="container">
+    <h2>🚀 Strapi API Connection Test</h2>
+    
+    <div class="api-tests">
+      <!-- File Upload Test -->
+      <div class="test-section">
+        <h3>📁 File Upload API</h3>
+        {fileError ? (
+          <div class="error">
+            <p><strong>❌ Error:</strong> {fileError}</p>
+          </div>
+        ) : (
+          <div class="success">
+            <p><strong>✅ Success!</strong> Found {images.length} images</p>
+          </div>
+        )}
+      </div>
+
+      <!-- Cafes API Test -->
+      <div class="test-section">
+        <h3>☕ Cafes API</h3>
+        {cafesError ? (
+          <div class="error">
+            <p><strong>❌ Error:</strong> {cafesError}</p>
+            <p><em>This means the API endpoint is not enabled yet.</em></p>
+          </div>
+        ) : (
+          <div class="success">
+            <p><strong>✅ Success!</strong> Found {cafes.length} cafes</p>
+          </div>
+        )}
+      </div>
+
+      <!-- Site Config API Test -->
+      <div class="test-section">
+        <h3>⚙️ Site Config API</h3>
+        {siteConfigError ? (
+          <div class="error">
+            <p><strong>❌ Error:</strong> {siteConfigError}</p>
+            <p><em>This means the API endpoint is not enabled yet.</em></p>
+          </div>
+        ) : (
+          <div class="success">
+            <p><strong>✅ Success!</strong> Site config loaded</p>
+          </div>
+        )}
+      </div>
+    </div>
+
+    {!fileError && images.length > 0 && (
+      <div class="images-section">
+        <h3>📸 Available Images</h3>
+        <div class="images-grid">
+          {images.slice(0, 3).map((image) => (
+            <div class="image-card">
+              <img 
+                src={`${STRAPI_URL}${image.url}`} 
+                alt={image.name}
+                loading="lazy"
+              />
+              <div class="image-info">
+                <h4>{image.name}</h4>
+                <p>{image.width} × {image.height} • {Math.round(image.size)}KB</p>
+                <p class="date">Uploaded: {new Date(image.createdAt).toLocaleDateString()}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+    
+    <div class="next-steps">
+      <h3>📋 To Enable Missing APIs:</h3>
+      <div class="documentation-note">
+        <p><strong>🔍 Status:</strong> The <a href="https://cms.cafereview.eu/documentation/v1.0.0" target="_blank">API documentation</a> only shows upload and user endpoints, confirming that the custom content type APIs need to be enabled.</p>
+      </div>
+      <ol>
+        <li><strong>Go to Strapi Admin:</strong> <a href="https://cms.cafereview.eu/admin" target="_blank">cms.cafereview.eu/admin</a></li>
+        <li><strong>Navigate to:</strong> Settings → Roles & Permissions → Public</li>
+        <li><strong>Enable API access for:</strong>
+          <ul>
+            <li><strong>Cafe</strong>: Enable "find" and "findOne"</li>
+            <li><strong>Site Config</strong>: Enable "find"</li>
+            <li><strong>Location</strong>: Enable "find" and "findOne"</li>
+          </ul>
+        </li>
+        <li><strong>Save the changes</strong> - the APIs will immediately become available!</li>
+        <li><strong>Refresh this page</strong> to see the ✅ success messages</li>
+      </ol>
+      
+      <div class="api-endpoints">
+        <h4>🎯 Expected API endpoints once enabled:</h4>
+        <ul>
+          <li><code>GET /api/cafes?populate=*</code></li>
+          <li><code>GET /api/site-config?populate=*</code></li>
+          <li><code>GET /api/locations?populate=*</code></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .strapi-demo {
+    padding: 4rem 0;
+    background: #f8f9fa;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  .strapi-demo h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 2rem;
+  }
+
+  .error {
+    background: #fee;
+    border: 1px solid #fcc;
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 2rem 0;
+  }
+
+  .error p {
+    color: #c33;
+    margin: 0;
+  }
+
+  .success {
+    background: #efe;
+    border: 1px solid #cfc;
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 2rem 0;
+  }
+
+  .success p {
+    color: #363;
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+  }
+
+  .api-tests {
+    display: grid;
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .test-section {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .test-section h3 {
+    margin: 0 0 1rem 0;
+    color: #333;
+    font-size: 1.3rem;
+  }
+
+  .test-section .success p,
+  .test-section .error p {
+    margin: 0.5rem 0;
+    font-size: 1rem;
+  }
+
+  .test-section .error em {
+    font-size: 0.9rem;
+    color: #999;
+  }
+
+  .images-section {
+    margin: 3rem 0;
+  }
+
+  .images-section h3 {
+    color: #333;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .next-steps ul {
+    margin: 1rem 0;
+    padding-left: 1.5rem;
+  }
+
+  .next-steps ul li {
+    margin: 0.5rem 0;
+  }
+
+  .images-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+
+  .image-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+  }
+
+  .image-card:hover {
+    transform: translateY(-5px);
+  }
+
+  .image-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
+
+  .image-info {
+    padding: 1rem;
+  }
+
+  .image-info h4 {
+    margin: 0 0 0.5rem 0;
+    color: #333;
+    font-size: 1rem;
+    word-break: break-word;
+  }
+
+  .image-info p {
+    margin: 0.25rem 0;
+    color: #666;
+    font-size: 0.9rem;
+  }
+
+  .date {
+    color: #999;
+    font-size: 0.8rem;
+  }
+
+  .next-steps {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 3rem 0;
+    border-left: 4px solid #ff6b35;
+  }
+
+  .next-steps h3 {
+    color: #333;
+    margin-top: 0;
+  }
+
+  .next-steps ol {
+    color: #555;
+    line-height: 1.6;
+  }
+
+  .next-steps ol li {
+    margin: 1rem 0;
+  }
+
+  .next-steps a {
+    color: #ff6b35;
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .next-steps a:hover {
+    text-decoration: underline;
+  }
+
+  .documentation-note {
+    background: #f0f8ff;
+    border: 1px solid #b8daff;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .documentation-note p {
+    color: #0056b3;
+    margin: 0;
+    font-size: 0.95rem;
+  }
+
+  .api-endpoints {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .api-endpoints h4 {
+    color: #333;
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+  }
+
+  .api-endpoints ul {
+    margin: 0;
+    padding-left: 1rem;
+  }
+
+  .api-endpoints code {
+    background: #e9ecef;
+    color: #495057;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 768px) {
+    .container {
+      padding: 0 1rem;
+    }
+
+    .strapi-demo h2 {
+      font-size: 2rem;
+    }
+
+    .images-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+</style>

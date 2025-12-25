@@ -1,0 +1,98 @@
+---
+import { getAllLocations } from '../lib/sanity-utils';
+
+const locations = await getAllLocations();
+console.log('Fetched locations:', locations);
+---
+
+{locations.length > 0 && (
+  <div class="location-dropdown">
+    <label for="location-select" class="sr-only">Select a location</label>
+    <select id="location-select" class="location-select">
+      <option value="all">All Locations</option>
+      {locations.map((location) => (
+        <option value={location.slug.current}>
+          {location.cityName}
+        </option>
+      ))}
+    </select>
+  </div>
+)}
+
+<script>
+  const locationSelect = document.getElementById('location-select') as HTMLSelectElement;
+  if (locationSelect) {
+    locationSelect.addEventListener('change', (e) => {
+      const selectedLocation = (e.target as HTMLSelectElement).value;
+      
+      if (selectedLocation === 'all') {
+        window.location.href = '/';
+      } else {
+        window.location.href = `/${selectedLocation}`;
+      }
+    });
+  }
+</script>
+
+<style>
+  .location-dropdown {
+    position: relative;
+    display: inline-block;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  .location-select {
+    appearance: none;
+    background-color: rgba(255, 255, 255, 0.95);
+    border: 2px solid var(--maple-brown, #8B4513);
+    border-radius: 8px;
+    padding: 0.75rem 2.5rem 0.75rem 1rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--ink-brown, #3E2723);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%233E2723' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 12px;
+  }
+
+  .location-select:hover {
+    background-color: rgba(255, 255, 255, 1);
+    border-color: var(--latte-orange, #FF6B35);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .location-select:focus {
+    outline: none;
+    border-color: var(--latte-orange, #FF6B35);
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.2);
+  }
+
+  @media (max-width: 768px) {
+    .location-select {
+      font-size: 1rem;
+      padding: 0.6rem 2rem 0.6rem 0.8rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .location-select {
+      font-size: 0.9rem;
+      padding: 0.5rem 1.75rem 0.5rem 0.7rem;
+    }
+  }
+</style>

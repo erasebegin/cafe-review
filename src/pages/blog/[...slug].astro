@@ -1,20 +1,37 @@
 ---
-import { type CollectionEntry, getCollection, render } from 'astro:content';
 import BlogPost from '../../layouts/BlogPost.astro';
+import { getAllBlogSlugs, getBlogPostBySlug } from '../../lib/sanity-utils';
+// import type { BlogPost as SanityBlogPost } from '../../types/sanity';
 
 export async function getStaticPaths() {
-	const posts = await getCollection('blog');
-	return posts.map((post) => ({
-		params: { slug: post.id },
-		props: post,
+	const slugs = await getAllBlogSlugs();
+	return slugs.map((slug) => ({
+		params: { slug },
 	}));
 }
-type Props = CollectionEntry<'blog'>;
 
-const post = Astro.props;
-const { Content } = await render(post);
+type Props = {
+	slug: string;
+};
+
+const { slug } = Astro.params;
+const post = await getBlogPostBySlug(slug!);
+
+if (!post) {
+	return Astro.redirect('/404');
+}
 ---
 
-<BlogPost {...post.data}>
-	<Content />
+<BlogPost 
+	title={post.title}
+	description={post.description}
+	pubDate={post.pubDate}
+	updatedDate={post.updatedDate}
+	heroImage={post.heroImage}
+>
+	<!-- TODO: Render Portable Text content -->
+	<div>
+		<p>Content from Sanity will be rendered here once Portable Text renderer is added.</p>
+		<pre>{JSON.stringify(post.content, null, 2)}</pre>
+	</div>
 </BlogPost>
