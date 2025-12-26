@@ -56,25 +56,56 @@ const bannerImageUrls = location.bannerImages?.map(image =>
       
       <section class="location-reviews">
         <div class="container">
-          <div class="section-header">
-            <h2>{location.cityName} Cafes</h2>
-            {location.description && (
+          {location.description && (
+            <div class="section-header">
               <p class="location-description">{location.description}</p>
-            )}
-            <a href="/" class="back-link">← Back to all locations</a>
-          </div>
+            </div>
+          )}
+          
+          {locationCafes.length > 0 && (
+            <div class="sort-controls">
+              <label for="sort-by">Sort by:</label>
+              <select id="sort-by" class="sort-dropdown">
+                <option value="newest">Newest</option>
+                <option value="vegan">Vegan Options</option>
+                <option value="glutenFree">Gluten Free</option>
+                <option value="workability">Workability</option>
+                <option value="coffee">Coffee Craftsmanship</option>
+                <option value="health">Health Focus</option>
+                <option value="croissants">Croissants</option>
+              </select>
+            </div>
+          )}
 
           {locationCafes.length > 0 ? (
-            <div class="reviews-grid">
+            <div class="reviews-grid" id="reviews-grid">
               {locationCafes.map((cafe) => (
-                <ReviewCard
-                  title={cafe.title}
-                  slug={cafe.slug}
-                  description={cafe.description}
-                  heroImage={cafe.heroImage}
-                  rating={cafe.rating}
-                  location={cafe.location}
-                />
+                <div 
+                  class="review-item"
+                  data-vegan={cafe.veganOptions || 0}
+                  data-gluten-free={cafe.glutenFree || 0}
+                  data-workability={cafe.workability || 0}
+                  data-coffee={cafe.coffeeCraftsmanship || 0}
+                  data-health={cafe.healthFocus || 0}
+                  data-croissants={cafe.croissants || 0}
+                  data-date={cafe.pubDate.getTime()}
+                >
+                  <ReviewCard
+                    title={cafe.title}
+                    slug={cafe.slug}
+                    description={cafe.description}
+                    heroImage={cafe.heroImage}
+                    rating={cafe.rating}
+                    location={cafe.location}
+                    hideLocation={true}
+                    veganOptions={cafe.veganOptions}
+                    glutenFree={cafe.glutenFree}
+                    workability={cafe.workability}
+                    coffeeCraftsmanship={cafe.coffeeCraftsmanship}
+                    healthFocus={cafe.healthFocus}
+                    croissants={cafe.croissants}
+                  />
+                </div>
               ))}
             </div>
           ) : (
@@ -86,6 +117,60 @@ const bannerImageUrls = location.bannerImages?.map(image =>
       </section>
     </main>
     <Footer />
+    
+    <script>
+      const sortDropdown = document.getElementById('sort-by') as HTMLSelectElement;
+      const reviewsGrid = document.getElementById('reviews-grid');
+      
+      if (sortDropdown && reviewsGrid) {
+        sortDropdown.addEventListener('change', () => {
+          const sortBy = sortDropdown.value;
+          const items = Array.from(reviewsGrid.children) as HTMLElement[];
+          
+          items.sort((a, b) => {
+            let aValue: number, bValue: number;
+            
+            switch(sortBy) {
+              case 'vegan':
+                aValue = parseFloat(a.dataset.vegan || '0');
+                bValue = parseFloat(b.dataset.vegan || '0');
+                break;
+              case 'glutenFree':
+                aValue = parseFloat(a.dataset.glutenFree || '0');
+                bValue = parseFloat(b.dataset.glutenFree || '0');
+                break;
+              case 'workability':
+                aValue = parseFloat(a.dataset.workability || '0');
+                bValue = parseFloat(b.dataset.workability || '0');
+                break;
+              case 'coffee':
+                aValue = parseFloat(a.dataset.coffee || '0');
+                bValue = parseFloat(b.dataset.coffee || '0');
+                break;
+              case 'health':
+                aValue = parseFloat(a.dataset.health || '0');
+                bValue = parseFloat(b.dataset.health || '0');
+                break;
+              case 'croissants':
+                aValue = parseFloat(a.dataset.croissants || '0');
+                bValue = parseFloat(b.dataset.croissants || '0');
+                break;
+              case 'newest':
+              default:
+                aValue = parseFloat(a.dataset.date || '0');
+                bValue = parseFloat(b.dataset.date || '0');
+                break;
+            }
+            
+            // Sort descending (highest first)
+            return bValue - aValue;
+          });
+          
+          // Reorder the DOM elements
+          items.forEach(item => reviewsGrid.appendChild(item));
+        });
+      }
+    </script>
   </body>
 </html>
 
@@ -110,7 +195,40 @@ const bannerImageUrls = location.bannerImages?.map(image =>
 
   .section-header {
     text-align: center;
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
+  }
+
+  .sort-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .sort-controls label {
+    font-weight: 600;
+    color: #333;
+  }
+
+  .sort-dropdown {
+    padding: 0.5rem 1rem;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    background: white;
+    font-size: 1rem;
+    color: #333;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+  }
+
+  .sort-dropdown:hover {
+    border-color: #ff6b35;
+  }
+
+  .sort-dropdown:focus {
+    outline: none;
+    border-color: #ff6b35;
   }
 
   .section-header h2 {
@@ -129,18 +247,6 @@ const bannerImageUrls = location.bannerImages?.map(image =>
     margin-right: auto;
   }
 
-  .back-link {
-    display: inline-block;
-    color: #ff6b35;
-    text-decoration: none;
-    font-weight: 600;
-    margin-top: 1rem;
-    transition: color 0.3s ease;
-  }
-
-  .back-link:hover {
-    color: #e55a2b;
-  }
 
   .reviews-grid {
     display: flex;

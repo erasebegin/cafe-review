@@ -53,18 +53,18 @@ export interface SanityCafe {
   gallery?: SanityImage[]
   location?: SanityLocation
   // Rating fields
-  veganOptions?: number
-  veganOptionsComment?: string
-  glutenFree?: number
+  veganRating?: number
+  veganComment?: string
+  glutenFreeRating?: number
   glutenFreeComment?: string
-  workability?: number
+  workabilityRating?: number
   workabilityComment?: string
-  coffeeCraftsmanship?: number
+  coffeeCraftsmanshipRating?: number
   coffeeCraftsmanshipComment?: string
-  healthFocus?: number
+  healthFocusRating?: number
   healthFocusComment?: string
-  croissants?: number
-  croissantsComment?: string
+  croissantRating?: number
+  croissantComment?: string
   // Multi-select arrays
   vibe?: string[]
   food?: string[]
@@ -103,6 +103,19 @@ export interface BlogPost {
     cityName: string
     slug: string
   }
+  // Rating fields
+  veganOptions?: number
+  veganComment?: string
+  glutenFree?: number
+  glutenFreeComment?: string
+  workability?: number
+  workabilityComment?: string
+  coffeeCraftsmanship?: number
+  coffeeCraftsmanshipComment?: string
+  healthFocus?: number
+  healthFocusComment?: string
+  croissants?: number
+  croissantComment?: string
   address?: string
   phone?: string
   website?: string

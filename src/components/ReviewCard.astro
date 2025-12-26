@@ -1,4 +1,6 @@
 ---
+import { Leaf, Wheat, Laptop, Coffee, Salad, Croissant } from 'lucide-astro';
+
 interface Props {
   title: string;
   slug: string;
@@ -9,9 +11,30 @@ interface Props {
     name?: string;
     slug?: string;
   };
+  hideLocation?: boolean;
+  veganOptions?: number;
+  glutenFree?: number;
+  workability?: number;
+  coffeeCraftsmanship?: number;
+  healthFocus?: number;
+  croissants?: number;
 }
 
-const { title, slug, description, heroImage, rating, location } = Astro.props;
+const { 
+  title, 
+  slug, 
+  description, 
+  heroImage, 
+  rating, 
+  location, 
+  hideLocation = false,
+  veganOptions,
+  glutenFree,
+  workability,
+  coffeeCraftsmanship,
+  healthFocus,
+  croissants
+} = Astro.props;
 
 const averageRating = rating || 0;
 const featuredImageUrl = heroImage || '';
@@ -19,7 +42,7 @@ const locationName = location?.name || '';
 const locationSlug = location?.slug || '';
 ---
 
-<article class="review-card" data-location={locationSlug}>
+<a href={`/blog/${slug}`} class="review-card" data-location={locationSlug}>
   <div class="review-image">
     {featuredImageUrl ? (
       <img 
@@ -32,20 +55,12 @@ const locationSlug = location?.slug || '';
         <span>No Image</span>
       </div>
     )}
-    <div class="rating-badge">
-      <span class="rating-number">{averageRating}</span>
-      <div class="rating-stars">
-        {Array.from({ length: 5 }, (_, i) => (
-          <span class={`star ${i < Math.round(averageRating) ? 'filled' : 'empty'}`}>★</span>
-        ))}
-      </div>
-    </div>
   </div>
   
   <div class="review-content">
     <div class="review-header">
       <h3 class="review-title">{title}</h3>
-      {locationName && (
+      {!hideLocation && locationName && (
         <span class="review-location">{locationName}</span>
       )}
     </div>
@@ -54,15 +69,46 @@ const locationSlug = location?.slug || '';
       <p class="review-description">{description}</p>
     )}
     
-    <div class="review-meta">
-      <span class="rating-display">Rating: {averageRating}/5</span>
+    <div class="ratings-container">
+      {veganOptions && (
+        <div class="rating-item" title="Vegan Options">
+          <Leaf class="rating-icon" size={16} />
+          <span class="rating-value">{veganOptions}/5</span>
+        </div>
+      )}
+      {glutenFree && (
+        <div class="rating-item" title="Gluten Free Options">
+          <Wheat class="rating-icon" size={16} />
+          <span class="rating-value">{glutenFree}/5</span>
+        </div>
+      )}
+      {workability && (
+        <div class="rating-item" title="Workability">
+          <Laptop class="rating-icon" size={16} />
+          <span class="rating-value">{workability}/5</span>
+        </div>
+      )}
+      {coffeeCraftsmanship && (
+        <div class="rating-item" title="Coffee Craftsmanship">
+          <Coffee class="rating-icon" size={16} />
+          <span class="rating-value">{coffeeCraftsmanship}/5</span>
+        </div>
+      )}
+      {healthFocus && (
+        <div class="rating-item" title="Health Focus">
+          <Salad class="rating-icon" size={16} />
+          <span class="rating-value">{healthFocus}/5</span>
+        </div>
+      )}
+      {croissants && (
+        <div class="rating-item" title="Croissants">
+          <Croissant class="rating-icon" size={16} />
+          <span class="rating-value">{croissants}/5</span>
+        </div>
+      )}
     </div>
-    
-    <a href={`/blog/${slug}`} class="read-more">
-      Read Full Review →
-    </a>
   </div>
-</article>
+</a>
 
 <style>
   .review-card {
@@ -73,6 +119,9 @@ const locationSlug = location?.slug || '';
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     display: flex;
     flex-direction: row;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
   }
 
   .review-card:hover {
@@ -109,43 +158,6 @@ const locationSlug = location?.slug || '';
     color: #999;
   }
 
-  .rating-badge {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: 8px;
-    padding: 0.5rem;
-    text-align: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-
-  .rating-number {
-    display: block;
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: #ff6b35;
-    margin-bottom: 0.2rem;
-  }
-
-  .rating-stars {
-    display: flex;
-    gap: 1px;
-    justify-content: center;
-  }
-
-  .star {
-    font-size: 0.8rem;
-  }
-
-  .star.filled {
-    color: #ff6b35;
-  }
-
-  .star.empty {
-    color: #ddd;
-  }
 
   .review-content {
     padding: 1.5rem;
@@ -163,6 +175,7 @@ const locationSlug = location?.slug || '';
     font-weight: 600;
     color: #333;
     margin: 0 0 0.5rem 0;
+    text-decoration: none;
   }
 
   .review-location {
@@ -185,22 +198,45 @@ const locationSlug = location?.slug || '';
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-  }
-
-  .review-meta {
-    margin-bottom: 1.5rem;
-  }
-
-  .read-more {
-    color: #ff6b35;
     text-decoration: none;
-    font-weight: 600;
-    transition: color 0.3s ease;
   }
 
-  .read-more:hover {
-    color: #e55a2b;
+  .ratings-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: auto;
+    pointer-events: none;
   }
+
+  .rating-item {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: #f5f5f5;
+    padding: 0.4rem 0.7rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    transition: background 0.2s ease;
+    pointer-events: auto;
+    position: relative;
+  }
+
+  .rating-item:hover {
+    background: #e8e8e8;
+  }
+
+  .rating-icon {
+    color: #666;
+    flex-shrink: 0;
+  }
+
+  .rating-value {
+    font-weight: 600;
+    color: #333;
+  }
+
+
 
   /* Responsive design */
   @media (max-width: 768px) {

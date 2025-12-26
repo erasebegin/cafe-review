@@ -1,14 +1,22 @@
 ---
 import { getSiteConfig } from '../lib/sanity-utils';
+import logo from '../assets/logo.png';
 
-let siteTitle = 'Cafe Reviews';
-let logoUrl = '';
+interface Props {
+  location?: string;
+}
+
+const { location } = Astro.props;
+
+console.log('Header location prop:', location);
+
+let siteTitle = 'Cafe Review';
+let logoUrl = logo.src;
 
 try {
   const siteConfig = await getSiteConfig();
   if (siteConfig) {
     siteTitle = siteConfig.title || siteTitle;
-    // Note: Add logo field to Sanity siteConfig schema if needed
   }
 } catch (error) {
   console.error('Failed to load site config for header:', error);
@@ -18,25 +26,25 @@ try {
 <header>
 	<nav>
 		<div class="brand">
-			<a href="/">
+			<a href="/" class="brand-container">
 				{logoUrl && (
 					<img src={logoUrl} alt={siteTitle} class="logo" />
 				)}
-				<span class="site-title">{siteTitle}</span>
+				<span class="site-title">
+					{siteTitle}
+					{location && <span class="location-bracket"> [{location}]</span>}
+				</span>
 			</a>
 		</div>
 	</nav>
 </header>
 <style>
 	header {
-		position: fixed;
-		top: 0;
-		left: 0;
-		right: 0;
+		position: absolute;
+		top: 2rem;
+		left: 14rem;
 		z-index: 1000;
-		padding: 1rem 2rem;
 		background: transparent;
-		box-shadow: none;
 	}
 
 	nav {
@@ -50,36 +58,46 @@ try {
 		align-items: center;
 	}
 
-	.brand a {
+	.brand-container {
 		display: flex;
 		align-items: center;
-		gap: 0.8rem;
+		gap: 0.5rem;
 		text-decoration: none;
-		color: var(--paper-beige);
 		font-weight: 600;
 		transition: all 0.3s ease;
+		background: white;
+		padding: 0.4rem 0.8rem;
+		border-radius: 8px;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 	}
 
-	.brand a:hover {
-		opacity: 0.8;
+	.brand-container:hover {
+		opacity: 0.9;
 	}
+
 
 	.logo {
-		height: 40px;
+		height: 32px;
 		width: auto;
 		object-fit: contain;
 	}
 
+	.location-bracket {
+		color: #ff6b35;
+		font-weight: 600;
+	}
+
 	.site-title {
-		font-size: 1.4rem;
+		font-size: 1.2rem;
 		font-weight: 700;
-		text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+		color: #333;
 	}
 
 	/* Responsive design */
 	@media (max-width: 768px) {
 		header {
-			padding: 1rem;
+			top: 1rem;
+			left: 1rem;
 		}
 
 		.logo {

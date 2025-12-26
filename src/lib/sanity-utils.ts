@@ -3,6 +3,7 @@ import type { SanityCafe, SanitySiteConfig, SanityLocation, BlogPost } from '../
 
 // Transform Sanity cafe to match Astro's blog format
 function transformCafeToBlogPost(cafe: SanityCafe): BlogPost {
+  
   return {
     id: cafe._id,
     title: cafe.title,
@@ -12,11 +13,24 @@ function transformCafeToBlogPost(cafe: SanityCafe): BlogPost {
     updatedDate: cafe._updatedAt ? new Date(cafe._updatedAt) : undefined,
     heroImage: cafe.featuredImage ? urlFor(cafe.featuredImage).width(720).height(360).url() : undefined,
     content: cafe.reviewBody || [],
-    rating: cafe.coffeeCraftsmanship, // Using coffee craftsmanship as main rating
+    rating: cafe.coffeeCraftsmanshipRating, // Using coffee craftsmanship as main rating
     location: cafe.location ? {
-      name: cafe.location.cityName,
+      cityName: cafe.location.cityName,
       slug: cafe.location.slug.current
     } : undefined,
+    // Rating fields
+    veganOptions: cafe.veganRating,
+    veganComment: cafe.veganComment,
+    glutenFree: cafe.glutenFreeRating,
+    glutenFreeComment: cafe.glutenFreeComment,
+    workability: cafe.workabilityRating,
+    workabilityComment: cafe.workabilityComment,
+    coffeeCraftsmanship: cafe.coffeeCraftsmanshipRating,
+    coffeeCraftsmanshipComment: cafe.coffeeCraftsmanshipComment,
+    healthFocus: cafe.healthFocusRating,
+    healthFocusComment: cafe.healthFocusComment,
+    croissants: cafe.croissantRating,
+    croissantComment: cafe.croissantComment,
     address: cafe.address,
     phone: cafe.phone,
     website: cafe.instagram || cafe.facebook,

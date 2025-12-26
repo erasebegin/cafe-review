@@ -4,15 +4,20 @@ import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
 
+import type { BlogPost as BlogPostType } from '../types/sanity';
+
 type Props = {
 	title: string;
 	description: string;
 	pubDate: Date;
 	updatedDate?: Date;
 	heroImage?: string;
+	post?: BlogPostType;
 };
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, post } = Astro.props;
+
+console.log('BlogPost layout - post.location:', post?.location);
 ---
 
 <html lang="en">
@@ -20,12 +25,19 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 		<BaseHead title={title} description={description} />
 		<style>
 			main {
-				width: calc(100% - 2em);
+				width: 100%;
 				max-width: 100%;
 				margin: 0;
+				padding: 0;
+			}
+
+			article {
+				position: relative;
 			}
 			.hero-image {
+				margin-top: 3rem;
 				width: 100%;
+				position: relative;
 			}
 			.hero-image img {
 				display: block;
@@ -45,13 +57,15 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 				padding: 1em 0;
 				text-align: center;
 				line-height: 1;
+				font-size: 1rem;
 			}
 			.title h1 {
 				margin: 0 0 0.5em 0;
 			}
 			.date {
 				margin-bottom: 0.5em;
-				color: rgb(var(--gray));
+				color: rgb(var(--ink-brown));
+				opacity: 0.7;
 			}
 			.last-updated-on {
 				font-style: italic;
@@ -60,7 +74,7 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 	</head>
 
 	<body>
-		<Header />
+		<Header location={Astro.props.post?.location?.cityName} />
 		<main>
 			<article>
 				<div class="hero-image">
@@ -68,19 +82,23 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 				</div>
 				<div class="prose">
 					<div class="title">
-						<div class="date">
-							<FormattedDate date={pubDate} />
-							{
-								updatedDate && (
-									<div class="last-updated-on">
-										Last updated on <FormattedDate date={updatedDate} />
-									</div>
-								)
-							}
-						</div>
 						<h1>{title}</h1>
 						<hr />
 					</div>
+						<div class="date">
+							{
+								updatedDate ? (
+									<div class="last-updated-on">
+										Last updated on <FormattedDate date={updatedDate} />
+									</div>
+								) : (
+									<div class="last-updated-on">
+										Last updated on <FormattedDate date={pubDate} />
+									</div>
+									
+								)
+							}
+						</div>
 					<slot />
 				</div>
 			</article>

@@ -1,7 +1,8 @@
 ---
 import BlogPost from '../../layouts/BlogPost.astro';
 import { getAllBlogSlugs, getBlogPostBySlug } from '../../lib/sanity-utils';
-// import type { BlogPost as SanityBlogPost } from '../../types/sanity';
+import { toHTML } from '@portabletext/to-html';
+import { Leaf, Wheat, Laptop, Coffee, Salad, Croissant, MapPin, Phone, Mail, Instagram, Facebook } from 'lucide-astro';
 
 export async function getStaticPaths() {
 	const slugs = await getAllBlogSlugs();
@@ -20,6 +21,9 @@ const post = await getBlogPostBySlug(slug!);
 if (!post) {
 	return Astro.redirect('/404');
 }
+
+// Convert Portable Text to HTML
+const contentHtml = post.content ? toHTML(post.content) : '';
 ---
 
 <BlogPost 
@@ -28,10 +32,314 @@ if (!post) {
 	pubDate={post.pubDate}
 	updatedDate={post.updatedDate}
 	heroImage={post.heroImage}
+	post={post}
 >
-	<!-- TODO: Render Portable Text content -->
-	<div>
-		<p>Content from Sanity will be rendered here once Portable Text renderer is added.</p>
-		<pre>{JSON.stringify(post.content, null, 2)}</pre>
+	<div class="review-content">
+		{/* Ratings Section */}
+		<section class="ratings-section">
+			<h2>Ratings</h2>
+			<div class="ratings-grid">
+				{post.veganOptions && (
+					<div class="rating-card">
+						<div class="rating-header">
+							<Leaf size={24} />
+							<span class="rating-label">Vegan Options</span>
+						</div>
+						<div class="rating-score">{post.veganOptions}/5</div>
+					</div>
+				)}
+				{post.glutenFree && (
+					<div class="rating-card">
+						<div class="rating-header">
+							<Wheat size={24} />
+							<span class="rating-label">Gluten Free</span>
+						</div>
+						<div class="rating-score">{post.glutenFree}/5</div>
+					</div>
+				)}
+				{post.workability && (
+					<div class="rating-card">
+						<div class="rating-header">
+							<Laptop size={24} />
+							<span class="rating-label">Workability</span>
+						</div>
+						<div class="rating-score">{post.workability}/5</div>
+					</div>
+				)}
+				{post.coffeeCraftsmanship && (
+					<div class="rating-card">
+						<div class="rating-header">
+							<Coffee size={24} />
+							<span class="rating-label">Coffee Craftsmanship</span>
+						</div>
+						<div class="rating-score">{post.coffeeCraftsmanship}/5</div>
+					</div>
+				)}
+				{post.healthFocus && (
+					<div class="rating-card">
+						<div class="rating-header">
+							<Salad size={24} />
+							<span class="rating-label">Health Focus</span>
+						</div>
+						<div class="rating-score">{post.healthFocus}/5</div>
+					</div>
+				)}
+				{post.croissants && (
+					<div class="rating-card">
+						<div class="rating-header">
+							<Croissant size={24} />
+							<span class="rating-label">Croissants</span>
+						</div>
+						<div class="rating-score">{post.croissants}/5</div>
+					</div>
+				)}
+			</div>
+		</section>
+
+		{/* Review Body */}
+		{contentHtml && (
+			<section class="review-body">
+				<div set:html={contentHtml} />
+			</section>
+		)}
+
+		{/* Rating Details - Show sections for ratings with comments */}
+		{(post.veganComment || post.glutenFreeComment || post.workabilityComment || 
+		  post.coffeeCraftsmanshipComment || post.healthFocusComment || post.croissantComment) && (
+			<section class="rating-details">
+				<h2>Rating Details</h2>
+				
+				{post.veganOptions && post.veganComment && (
+					<div class="rating-detail">
+						<div class="rating-detail-header">
+							<Leaf size={24} />
+							<h3>Vegan Options</h3>
+							<span class="detail-score">{post.veganOptions}/5</span>
+						</div>
+						<p class="rating-detail-text">{post.veganComment}</p>
+					</div>
+				)}
+
+				{post.glutenFree && post.glutenFreeComment && (
+					<div class="rating-detail">
+						<div class="rating-detail-header">
+							<Wheat size={24} />
+							<h3>Gluten Free Options</h3>
+							<span class="detail-score">{post.glutenFree}/5</span>
+						</div>
+						<p class="rating-detail-text">{post.glutenFreeComment}</p>
+					</div>
+				)}
+
+				{post.workability && post.workabilityComment && (
+					<div class="rating-detail">
+						<div class="rating-detail-header">
+							<Laptop size={24} />
+							<h3>Workability</h3>
+							<span class="detail-score">{post.workability}/5</span>
+						</div>
+						<p class="rating-detail-text">{post.workabilityComment}</p>
+					</div>
+				)}
+
+				{post.coffeeCraftsmanship && post.coffeeCraftsmanshipComment && (
+					<div class="rating-detail">
+						<div class="rating-detail-header">
+							<Coffee size={24} />
+							<h3>Coffee Craftsmanship</h3>
+							<span class="detail-score">{post.coffeeCraftsmanship}/5</span>
+						</div>
+						<p class="rating-detail-text">{post.coffeeCraftsmanshipComment}</p>
+					</div>
+				)}
+
+				{post.healthFocus && post.healthFocusComment && (
+					<div class="rating-detail">
+						<div class="rating-detail-header">
+							<Salad size={24} />
+							<h3>Health Focus</h3>
+							<span class="detail-score">{post.healthFocus}/5</span>
+						</div>
+						<p class="rating-detail-text">{post.healthFocusComment}</p>
+					</div>
+				)}
+
+				{post.croissants && post.croissantComment && (
+					<div class="rating-detail">
+						<div class="rating-detail-header">
+							<Croissant size={24} />
+							<h3>Croissants</h3>
+							<span class="detail-score">{post.croissants}/5</span>
+						</div>
+						<p class="rating-detail-text">{post.croissantComment}</p>
+					</div>
+				)}
+			</section>
+		)}
+
+		{/* Contact & Location */}
+		{(post.address || post.phone || post.website) && (
+			<section class="contact-section">
+				<h2>Location & Contact</h2>
+				<div class="contact-grid">
+					{post.address && (
+						<div class="contact-item">
+							<MapPin size={20} />
+							<span>{post.address}</span>
+						</div>
+					)}
+					{post.phone && (
+						<div class="contact-item">
+							<Phone size={20} />
+							<a href={`tel:${post.phone}`}>{post.phone}</a>
+						</div>
+					)}
+					{post.website && (
+						<div class="contact-item">
+							{post.website.includes('instagram') ? <Instagram size={20} /> : <Facebook size={20} />}
+							<a href={post.website} target="_blank" rel="noopener noreferrer">Visit</a>
+						</div>
+					)}
+				</div>
+			</section>
+		)}
 	</div>
 </BlogPost>
+
+<style>
+	.review-content {
+		margin-top: 2rem;
+	}
+
+	.ratings-section {
+		margin-bottom: 3rem;
+	}
+
+	.ratings-section h2 {
+		margin-bottom: 1.5rem;
+		color: #333;
+	}
+
+	.ratings-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+		gap: 1rem;
+	}
+
+	.rating-card {
+		background: #f9f9f9;
+		border-radius: 12px;
+		padding: 1.5rem;
+		border: 2px solid #e8e8e8;
+		transition: border-color 0.3s ease;
+	}
+
+	.rating-card:hover {
+		border-color: #ff6b35;
+	}
+
+	.rating-header {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		margin-bottom: 1rem;
+		color: #666;
+	}
+
+	.rating-label {
+		font-weight: 600;
+		color: #333;
+	}
+
+	.rating-score {
+		font-size: 2rem;
+		font-weight: 700;
+		color: #ff6b35;
+	}
+
+	.review-body {
+		margin-bottom: 3rem;
+		line-height: 1.8;
+	}
+
+	.rating-details {
+		margin: 3rem 0;
+	}
+
+	.rating-details h2 {
+		margin-bottom: 2rem;
+		color: #333;
+	}
+
+	.rating-detail {
+		margin-bottom: 2.5rem;
+		padding-bottom: 2.5rem;
+		border-bottom: 1px solid #e8e8e8;
+	}
+
+	.rating-detail:last-child {
+		border-bottom: none;
+	}
+
+	.rating-detail-header {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		margin-bottom: 1rem;
+		color: #666;
+	}
+
+	.rating-detail-header h3 {
+		margin: 0;
+		flex: 1;
+		color: #333;
+		font-size: 1.5rem;
+	}
+
+	.detail-score {
+		font-size: 1.5rem;
+		font-weight: 700;
+		color: #ff6b35;
+	}
+
+	.rating-detail-text {
+		margin: 0;
+		line-height: 1.8;
+		color: #555;
+		font-size: 1.05rem;
+	}
+
+	.contact-section {
+		margin-top: 3rem;
+		padding-top: 3rem;
+		border-top: 2px solid #e8e8e8;
+	}
+
+	.contact-section h2 {
+		margin-bottom: 1.5rem;
+		color: #333;
+	}
+
+	.contact-grid {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	.contact-item {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		color: #666;
+	}
+
+	.contact-item a {
+		color: #ff6b35;
+		text-decoration: none;
+		transition: color 0.3s ease;
+	}
+
+	.contact-item a:hover {
+		color: #e55a2b;
+	}
+</style>
