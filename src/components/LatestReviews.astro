@@ -3,44 +3,58 @@ import { getAllBlogPosts } from '../lib/sanity-utils';
 import ReviewCard from './ReviewCard.astro';
 import LocationDropdown from './LocationDropdown.astro';
 
-let cafes = [];
+const PER_PAGE = 6;
+let cafes: Awaited<ReturnType<typeof getAllBlogPosts>> = [];
 
 try {
   const posts = await getAllBlogPosts();
-  cafes = posts; // Show all cafes for filtering
+  cafes = posts.sort((a, b) => b.pubDate.getTime() - a.pubDate.getTime());
 } catch (error) {
-  console.error('Failed to load latest cafes:', error);
+  console.error('Failed to load cafes:', error);
 }
+
+const totalPages = Math.ceil(cafes.length / PER_PAGE);
 ---
 
-<section class="latest-reviews">
+<section class="all-reviews" id="all-reviews">
   <div class="container">
+    <div class="section-header">
+      <h2>All Reviews</h2>
+    </div>
     <div class="location-filter">
       <LocationDropdown />
     </div>
     {cafes.length > 0 ? (
-      <div class="reviews-grid">
-        {cafes.map((cafe) => (
-          <ReviewCard
-            title={cafe.title}
-            slug={cafe.slug}
-            description={cafe.description}
-            heroImage={cafe.heroImage}
-            rating={cafe.rating}
-            location={cafe.location}
-            veganOptions={cafe.veganOptions}
-            glutenFree={cafe.glutenFree}
-            workability={cafe.workability}
-            coffeeCraftsmanship={cafe.coffeeCraftsmanship}
-            healthFocus={cafe.healthFocus}
-            croissants={cafe.croissants}
-          />
-        ))}
-      </div>
-      
-      <div class="section-footer">
-        <a href="/reviews" class="view-all-button">View All Reviews</a>
-      </div>
+      <>
+        <div class="reviews-grid" id="reviews-grid">
+          {cafes.map((cafe, index) => (
+            <div class="review-item" data-page={Math.floor(index / PER_PAGE) + 1}>
+              <ReviewCard
+                title={cafe.title}
+                slug={cafe.slug}
+                description={cafe.description}
+                heroImage={cafe.heroImage}
+                rating={cafe.rating}
+                location={cafe.location}
+                veganOptions={cafe.veganOptions}
+                glutenFree={cafe.glutenFree}
+                workability={cafe.workability}
+                coffeeCraftsmanship={cafe.coffeeCraftsmanship}
+                healthFocus={cafe.healthFocus}
+                croissants={cafe.croissants}
+              />
+            </div>
+          ))}
+        </div>
+
+        {totalPages > 1 && (
+          <nav class="pagination" id="pagination" aria-label="Reviews pagination" data-total-pages={totalPages}>
+            <button class="page-btn" id="prev-btn" aria-label="Previous page" disabled>&larr;</button>
+            <div class="page-numbers" id="page-numbers"></div>
+            <button class="page-btn" id="next-btn" aria-label="Next page">&rarr;</button>
+          </nav>
+        )}
+      </>
     ) : (
       <div class="no-reviews">
         <p>No reviews available at the moment. Check back soon!</p>
@@ -49,10 +63,61 @@ try {
   </div>
 </section>
 
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const pagination = document.getElementById('pagination');
+    if (!pagination) return;
+
+    const totalPages = parseInt(pagination.dataset.totalPages || '1');
+    const items = document.querySelectorAll<HTMLElement>('.review-item');
+    const prevBtn = document.getElementById('prev-btn') as HTMLButtonElement;
+    const nextBtn = document.getElementById('next-btn') as HTMLButtonElement;
+    const pageNumbers = document.getElementById('page-numbers')!;
+    let currentPage = 1;
+
+    function renderPageNumbers() {
+      pageNumbers.innerHTML = '';
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.className = `page-num${i === currentPage ? ' active' : ''}`;
+        btn.textContent = String(i);
+        btn.addEventListener('click', () => goToPage(i));
+        pageNumbers.appendChild(btn);
+      }
+    }
+
+    function goToPage(page: number) {
+      currentPage = page;
+      items.forEach(item => {
+        item.classList.toggle('visible', item.dataset.page === String(currentPage));
+      });
+      prevBtn.disabled = currentPage === 1;
+      nextBtn.disabled = currentPage === totalPages;
+      renderPageNumbers();
+
+      const section = document.getElementById('all-reviews');
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    prevBtn.addEventListener('click', () => {
+      if (currentPage > 1) goToPage(currentPage - 1);
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if (currentPage < totalPages) goToPage(currentPage + 1);
+    });
+
+    // Initialize
+    goToPage(1);
+  });
+</script>
+
 <style>
-  .latest-reviews {
+  .all-reviews {
     padding: 4rem 0;
-    background: #fafafa;
+    background: linear-gradient(135deg, #2c3e50 0%, #3a5565 50%, #2d4a5a 100%);
   }
 
   .container {
@@ -61,68 +126,119 @@ try {
     padding: 0 2rem;
   }
 
+  .section-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .section-header h2 {
+    font-size: 2.5rem;
+    color: white;
+    margin: 0;
+    font-weight: 700;
+    text-shadow: 1px 2px 4px rgba(0, 0, 0, 0.15);
+  }
+
   .location-filter {
     margin-bottom: 2rem;
     display: flex;
     justify-content: center;
   }
 
-  .section-header {
-    text-align: center;
-    margin-bottom: 3rem;
-  }
-
-  .section-header h2 {
-    font-size: 2.5rem;
-    color: #333;
-    margin: 0 0 1rem 0;
-    font-weight: 700;
-  }
-
-  .section-header p {
-    font-size: 1.1rem;
-    color: #666;
-    margin: 0;
-  }
-
   .reviews-grid {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
   }
 
-  .section-footer {
-    text-align: center;
+  .review-item {
+    display: none;
   }
 
-  .view-all-button {
-    display: inline-block;
-    padding: 1rem 2rem;
-    background: #ff6b35;
+  .review-item.visible {
+    display: block;
+  }
+
+  /* Pagination */
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 2rem 0;
+  }
+
+  .page-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
     color: white;
-    text-decoration: none;
-    border-radius: 25px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s ease;
   }
 
-  .view-all-button:hover {
-    background: #e55a2b;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+  .page-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.4);
+  }
+
+  .page-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .page-numbers {
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  .page-numbers :global(.page-num) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s ease;
+  }
+
+  .page-numbers :global(.page-num:hover) {
+    background: rgba(255, 255, 255, 0.4);
+  }
+
+  .page-numbers :global(.page-num.active) {
+    background: rgba(255, 255, 255, 0.5);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
 
   .no-reviews {
     text-align: center;
     padding: 3rem;
-    color: #666;
+    color: rgba(255, 255, 255, 0.8);
   }
 
   /* Responsive design */
   @media (max-width: 768px) {
-    .latest-reviews {
+    .all-reviews {
       padding: 3rem 0;
     }
 
@@ -138,5 +254,11 @@ try {
       font-size: 2rem;
     }
 
+    .page-btn,
+    .page-numbers :global(.page-num) {
+      width: 36px;
+      height: 36px;
+      font-size: 0.85rem;
+    }
   }
 </style>

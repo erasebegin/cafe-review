@@ -8,27 +8,31 @@
 	/* Primary Colors */
 	--latte-orange: #F4A261;
 	--maple-brown: #E76F51;
-	
+
 	/* Secondary Colors */
 	--butter-yellow: #F6C971;
 	--clay-pink: #E9AFAF;
-	
+
 	/* Neutrals */
 	--paper-beige: #F4E1C1;
 	--ink-brown: #3B2F2F;
 	--sky-blue: #A7C7C7;
-	
+
 	/* Legacy mappings for compatibility */
 	--accent: var(--latte-orange);
 	--accent-dark: var(--maple-brown);
-	--black: 59, 47, 47; /* Ink Brown as RGB */
-	--gray: 167, 199, 199; /* Sky Blue as RGB */
-	--gray-light: 244, 225, 193; /* Paper Beige as RGB */
-	--gray-dark: 59, 47, 47; /* Ink Brown as RGB */
+	--black: 59, 47, 47;
+	/* Ink Brown as RGB */
+	--gray: 167, 199, 199;
+	/* Sky Blue as RGB */
+	--gray-light: 244, 225, 193;
+	/* Paper Beige as RGB */
+	--gray-dark: 59, 47, 47;
+	/* Ink Brown as RGB */
 	--box-shadow:
-		0 2px 6px rgba(59, 47, 47, 0.15), 0 8px 24px rgba(59, 47, 47, 0.2), 0 16px 32px
-		rgba(59, 47, 47, 0.2);
+		0 2px 6px rgba(59, 47, 47, 0.15), 0 8px 24px rgba(59, 47, 47, 0.2), 0 16px 32px rgba(59, 47, 47, 0.2);
 }
+
 @font-face {
 	font-family: "Atkinson";
 	src: url("/fonts/atkinson-regular.woff") format("woff");
@@ -36,6 +40,7 @@
 	font-style: normal;
 	font-display: swap;
 }
+
 @font-face {
 	font-family: "Atkinson";
 	src: url("/fonts/atkinson-bold.woff") format("woff");
@@ -43,6 +48,7 @@
 	font-style: normal;
 	font-display: swap;
 }
+
 body {
 	font-family: "Atkinson", sans-serif;
 	margin: 0;
@@ -55,12 +61,18 @@ body {
 	font-size: 20px;
 	line-height: 1.7;
 }
+
+body.blog-post {
+	background: linear-gradient(180deg, #f8f9fa 0%, #eef1f3 40%, #e8ecef 100%);
+}
+
 main {
 	width: 720px;
 	max-width: calc(100% - 2em);
 	margin: auto;
 	padding: 3em 1em;
 }
+
 h1,
 h2,
 h3,
@@ -71,78 +83,100 @@ h6 {
 	color: var(--maple-brown);
 	line-height: 1.2;
 }
+
 h1 {
 	font-size: 3.052em;
 }
+
 h2 {
 	font-size: 2.441em;
 }
+
 h3 {
 	font-size: 1.953em;
 }
+
 h4 {
 	font-size: 1.563em;
+	color: var(--gray);
 }
+
 h5 {
 	font-size: 1.25em;
 }
+
 strong,
 b {
 	font-weight: 700;
 }
+
 a {
 	color: var(--latte-orange);
 }
+
 a:hover {
 	color: var(--maple-brown);
 }
+
 p {
 	margin-bottom: 1em;
 }
+
 .prose p {
 	margin-bottom: 2em;
 }
+
 textarea {
 	width: 100%;
 	font-size: 16px;
 }
+
 input {
 	font-size: 16px;
 }
+
 table {
 	width: 100%;
 }
+
 img {
 	max-width: 100%;
 	height: auto;
 	border-radius: 8px;
 }
+
 code {
 	padding: 2px 5px;
 	background-color: var(--paper-beige);
 	border-radius: 2px;
 }
+
 pre {
 	padding: 1.5em;
 	border-radius: 8px;
 }
-pre > code {
+
+pre>code {
 	all: unset;
 }
+
 blockquote {
 	border-left: 4px solid var(--latte-orange);
 	padding: 0 0 0 20px;
 	margin: 0px;
 	font-size: 1.333em;
 }
+
 hr {
 	border: none;
 	border-top: 1px solid var(--clay-pink);
 }
+
 @media (max-width: 720px) {
 	body {
 		font-size: 18px;
 	}
+
 	main {
 		padding: 1em;
 	}

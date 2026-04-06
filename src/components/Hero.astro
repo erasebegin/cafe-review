@@ -1,15 +1,17 @@
 ---
 import { Image } from 'astro:assets';
 import { getSiteConfig } from '../lib/sanity-utils';
+import type { BlogPost } from '../types/sanity';
 import chrisMap from '../assets/Chris_Map.jpg';
 
 interface Props {
   cityName?: string;
   bannerImageUrls?: string[];
   showScrollIndicator?: boolean;
+  featuredCafes?: BlogPost[];
 }
 
-const { cityName, bannerImageUrls, showScrollIndicator = false } = Astro.props;
+const { cityName, bannerImageUrls, showScrollIndicator = false, featuredCafes = [] } = Astro.props;
 const hasMultipleImages = bannerImageUrls && bannerImageUrls.length > 1;
 
 let title = 'Cafe Review';
@@ -42,12 +44,41 @@ try {
   </div>
   <div class="hero-overlay"></div>
   <div class="hero-content">
-    <div class="title-container">
-      <h1 class="site-title">{title}</h1>
-      {cityName && (
-        <p class="city-subtitle">{cityName}</p>
-      )}
-    </div>
+    {featuredCafes.length > 0 ? (
+      <div class="hero-center">
+        <div class="title-container">
+          <h1 class="site-title">{title}</h1>
+          {cityName && (
+            <p class="city-subtitle">{cityName}</p>
+          )}
+        </div>
+        <div class="latest-cafes-container">
+          <div class="latest-cafes-grid">
+            {featuredCafes.map((cafe) => (
+              <a href={`/blog/${cafe.slug}`} class="latest-cafe-card">
+                <div class="cafe-card-image">
+                  {cafe.heroImage ? (
+                    <img src={cafe.heroImage} alt={cafe.title} loading="lazy" />
+                  ) : (
+                    <div class="cafe-card-placeholder">No Image</div>
+                  )}
+                </div>
+                <div class="cafe-card-info">
+                  <h3 class="cafe-card-title">{cafe.title}</h3>
+                  {cafe.location?.cityName && (
+                    <span class="cafe-card-location">{cafe.location.cityName}</span>
+                  )}
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+    ) : (
+      <div class="title-container title-top-left">
+        <h1 class="site-title">{title}</h1>
+      </div>
+    )}
     {showScrollIndicator ? (
       <div class="scroll-indicator" aria-label="Scroll down">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
@@ -161,28 +192,137 @@ try {
     height: 100%;
   }
 
+  .hero-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    width: 90%;
+    max-width: 900px;
+  }
+
   .title-container {
+    border-radius: 50px;
+    padding: 1rem 4rem;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+
+  .title-top-left {
+    width: auto;
     position: absolute;
     top: 8rem;
     left: 5rem;
     z-index: 4;
   }
 
+  .latest-cafes-container {
+    width: 100%;
+    border-radius: 24px;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+
+  .latest-cafes-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+
+  .latest-cafe-card {
+    display: flex;
+    flex-direction: column;
+    border-radius: 16px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    text-decoration: none;
+    color: white;
+    transition: transform 0.3s ease, background 0.3s ease;
+  }
+
+  .latest-cafe-card:hover {
+    transform: translateY(-4px);
+    background: rgba(0, 0, 0, 0.45);
+  }
+
+  .cafe-card-image {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+  }
+
+  .cafe-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .latest-cafe-card:hover .cafe-card-image img {
+    transform: scale(1.05);
+  }
+
+  .cafe-card-placeholder {
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.8rem;
+  }
+
+  .cafe-card-info {
+    padding: 0.75rem;
+  }
+
+  .cafe-card-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin: 0;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.7);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: white;
+  }
+
+  .cafe-card-location {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.85);
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+  }
+
   .site-title {
-    color: var(--ink-brown);
+    color: white;
     font-size: 5rem;
     font-weight: 700;
     margin: 0;
-    text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.7);
+    text-shadow: 1px 2px 4px rgba(0, 0, 0, 0.3);
   }
 
   .city-subtitle {
     position: relative;
-    color: var(--ink-brown);
+    color: rgba(255, 255, 255, 0.9);
     font-size: 3rem;
     font-weight: 500;
     margin: 0.5rem 0 0 0;
-    text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.7);
+    text-shadow: 1px 2px 4px rgba(0, 0, 0, 0.3);
   }
 
   .map-pin {
@@ -294,9 +434,21 @@ try {
 
   /* Responsive design */
   @media (max-width: 768px) {
+    .hero-center {
+      width: 95%;
+    }
+
     .title-container {
+      padding: 1rem 2rem;
+    }
+
+    .title-top-left {
       top: 1rem;
       left: 1rem;
+    }
+
+    .latest-cafes-grid {
+      grid-template-columns: repeat(2, 1fr);
     }
 
     .site-title {
@@ -343,6 +495,14 @@ try {
 
     .city-subtitle {
       font-size: 1.2rem;
+    }
+
+    .latest-cafes-container {
+      padding: 0.75rem;
+    }
+
+    .cafe-card-title {
+      font-size: 0.8rem;
     }
 
     .map-pin {

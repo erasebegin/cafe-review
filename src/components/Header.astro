@@ -4,9 +4,10 @@ import logo from '../assets/logo.png';
 
 interface Props {
   location?: string;
+  locationSlug?: string;
 }
 
-const { location } = Astro.props;
+const { location, locationSlug } = Astro.props;
 
 console.log('Header location prop:', location);
 
@@ -26,7 +27,7 @@ try {
 <header>
 	<nav>
 		<div class="brand">
-			<a href="/" class="brand-container">
+			<a href={locationSlug ? `/${locationSlug}` : '/'} class="brand-container">
 				{logoUrl && (
 					<img src={logoUrl} alt={siteTitle} class="logo" />
 				)}

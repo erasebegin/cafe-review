@@ -52,7 +52,7 @@ const bannerImageUrls = location.bannerImages?.map(image =>
   </head>
   <body>
     <main class="homepage-main">
-      <Hero cityName={location.cityName} bannerImageUrls={bannerImageUrls} showScrollIndicator={true} />
+      <Hero cityName={location.cityName} bannerImageUrls={bannerImageUrls} showScrollIndicator={true} featuredCafes={locationCafes.sort((a, b) => b.pubDate.getTime() - a.pubDate.getTime()).slice(0, 4)} />
       
       <section class="location-reviews">
         <div class="container">

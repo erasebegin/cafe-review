@@ -6,19 +6,25 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+"sync-joplin": "tsx --env-file=.env scripts/joplin-to-sanity.ts"
   },
   "dependencies": {
-    "@astrojs/check": "^0.9.4",
-    "@astrojs/mdx": "^4.3.4",
-    "@astrojs/rss": "^4.0.12",
-    "@astrojs/sitemap": "^3.5.1",
-    "@portabletext/to-html": "^5.0.0",
-    "@sanity/client": "^7.11.2",
+    "@astrojs/check": "^0.9.8",
+    "@astrojs/mdx": "^4.3.14",
+    "@astrojs/rss": "^4.0.18",
+    "@astrojs/sitemap": "^3.7.2",
+    "@portabletext/to-html": "^5.0.2",
+    "@sanity/client": "^7.20.0",
     "@sanity/image-url": "^1.2.0",
-    "astro": "^5.13.5",
+    "astro": "^5.18.1",
     "lucide-astro": "^0.556.0",
-    "sharp": "^0.34.2",
-    "typescript": "^5.9.2"
+    "sharp": "^0.34.5",
+    "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "better-sqlite3": "^12.8.0",
+    "tsx": "^4.21.0"
   }
 }
