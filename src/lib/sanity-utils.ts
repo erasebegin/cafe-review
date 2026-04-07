@@ -29,7 +29,7 @@ function transformCafeToBlogPost(cafe: SanityCafe): BlogPost {
     coffeeCraftsmanshipComment: cafe.coffeeCraftsmanshipComment,
     healthFocus: cafe.healthFocusRating,
     healthFocusComment: cafe.healthFocusComment,
-    croissants: cafe.croissantRating,
+    pastries: cafe.croissantRating,
     croissantComment: cafe.croissantComment,
     address: cafe.address,
     phone: cafe.phone,

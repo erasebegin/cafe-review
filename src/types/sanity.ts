@@ -114,7 +114,7 @@ export interface BlogPost {
   coffeeCraftsmanshipComment?: string
   healthFocus?: number
   healthFocusComment?: string
-  croissants?: number
+  pastries?: number
   croissantComment?: string
   address?: string
   phone?: string

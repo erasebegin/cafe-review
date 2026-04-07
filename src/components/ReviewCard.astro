@@ -17,7 +17,7 @@ interface Props {
   workability?: number;
   coffeeCraftsmanship?: number;
   healthFocus?: number;
-  croissants?: number;
+  pastries?: number;
 }
 
 const { 
@@ -33,7 +33,7 @@ const {
   workability,
   coffeeCraftsmanship,
   healthFocus,
-  croissants
+  pastries
 } = Astro.props;
 
 const averageRating = rating || 0;
@@ -71,39 +71,39 @@ const locationSlug = location?.slug || '';
     
     <div class="ratings-container">
       {veganOptions && (
-        <div class="rating-item" title="Vegan Options">
+      <div class="rating-item" title="Vegan Options" data-category="vegan">
           <Leaf class="rating-icon" size={16} />
           <span class="rating-value">{veganOptions}/5</span>
         </div>
       )}
       {glutenFree && (
-        <div class="rating-item" title="Gluten Free Options">
+        <div class="rating-item" title="Gluten Free Options" data-category="glutenFree">
           <Wheat class="rating-icon" size={16} />
           <span class="rating-value">{glutenFree}/5</span>
         </div>
       )}
       {workability && (
-        <div class="rating-item" title="Workability">
+        <div class="rating-item" title="Workability" data-category="workability">
           <Laptop class="rating-icon" size={16} />
           <span class="rating-value">{workability}/5</span>
         </div>
       )}
       {coffeeCraftsmanship && (
-        <div class="rating-item" title="Coffee Craftsmanship">
+        <div class="rating-item" title="Coffee Craftsmanship" data-category="coffee">
           <Coffee class="rating-icon" size={16} />
           <span class="rating-value">{coffeeCraftsmanship}/5</span>
         </div>
       )}
       {healthFocus && (
-        <div class="rating-item" title="Health Focus">
+        <div class="rating-item" title="Health Focus" data-category="health">
           <Salad class="rating-icon" size={16} />
           <span class="rating-value">{healthFocus}/5</span>
         </div>
       )}
-      {croissants && (
-        <div class="rating-item" title="Croissants">
+      {pastries && (
+        <div class="rating-item" title="Pastries" data-category="pastries">
           <Croissant class="rating-icon" size={16} />
-          <span class="rating-value">{croissants}/5</span>
+          <span class="rating-value">{pastries}/5</span>
         </div>
       )}
     </div>
@@ -232,6 +232,11 @@ const locationSlug = location?.slug || '';
 
   .rating-item:hover {
     background: rgba(0, 0, 0, 0.45);
+  }
+
+  .rating-item.highlighted {
+    background: rgba(255, 107, 53, 0.35);
+    border-color: rgba(255, 107, 53, 0.7);
   }
 
   .rating-icon {

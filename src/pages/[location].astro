@@ -3,6 +3,7 @@ import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Hero from '../components/Hero.astro';
 import ReviewCard from '../components/ReviewCard.astro';
+import { Leaf, Wheat, Laptop, Coffee, Salad, Croissant } from 'lucide-astro';
 import { getAllLocations, getAllBlogPosts, getSiteConfig } from '../lib/sanity-utils';
 import { urlFor } from '../lib/sanity';
 
@@ -78,12 +79,12 @@ const bannerImageUrls = location.bannerImages?.map(image =>
             <div class="best-for-section">
               <h3 class="best-for-title">Best for...</h3>
               <div class="filter-buttons">
-                <button class="filter-btn" data-sort="vegan">🌿 Vegan</button>
-                <button class="filter-btn" data-sort="glutenFree">🌾 Gluten Free</button>
-                <button class="filter-btn" data-sort="workability">💻 Workability</button>
-                <button class="filter-btn" data-sort="coffee">☕ Coffee</button>
-                <button class="filter-btn" data-sort="health">🥗 Health</button>
-                <button class="filter-btn" data-sort="croissants">🥐 Croissants</button>
+                <button class="filter-btn" data-sort="vegan"><Leaf size={16} /> Vegan</button>
+                <button class="filter-btn" data-sort="glutenFree"><Wheat size={16} /> Gluten Free</button>
+                <button class="filter-btn" data-sort="workability"><Laptop size={16} /> Workability</button>
+                <button class="filter-btn" data-sort="coffee"><Coffee size={16} /> Coffee</button>
+                <button class="filter-btn" data-sort="health"><Salad size={16} /> Health</button>
+                <button class="filter-btn" data-sort="pastries"><Croissant size={16} /> Pastries</button>
               </div>
             </div>
           )}
@@ -98,7 +99,7 @@ const bannerImageUrls = location.bannerImages?.map(image =>
                   data-workability={cafe.workability || 0}
                   data-coffee={cafe.coffeeCraftsmanship || 0}
                   data-health={cafe.healthFocus || 0}
-                  data-croissants={cafe.croissants || 0}
+                  data-pastries={cafe.pastries || 0}
                   data-date={cafe.pubDate.getTime()}
                 >
                   <ReviewCard
@@ -114,7 +115,7 @@ const bannerImageUrls = location.bannerImages?.map(image =>
                     workability={cafe.workability}
                     coffeeCraftsmanship={cafe.coffeeCraftsmanship}
                     healthFocus={cafe.healthFocus}
-                    croissants={cafe.croissants}
+                    pastries={cafe.pastries}
                   />
                 </div>
               ))}
@@ -132,16 +133,34 @@ const bannerImageUrls = location.bannerImages?.map(image =>
     <script>
       const filterBtns = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
       const reviewsGrid = document.getElementById('reviews-grid');
-      
+
+      const categoryMap: Record<string, string> = {
+        vegan: 'vegan',
+        glutenFree: 'glutenFree',
+        workability: 'workability',
+        coffee: 'coffee',
+        health: 'health',
+        pastries: 'pastries',
+      };
+
+      function clearHighlights() {
+        document.querySelectorAll('.rating-item.highlighted').forEach(el => el.classList.remove('highlighted'));
+      }
+
       if (filterBtns.length && reviewsGrid) {
         filterBtns.forEach(btn => {
           btn.addEventListener('click', () => {
             const wasActive = btn.classList.contains('active');
             filterBtns.forEach(b => b.classList.remove('active'));
-            
+            clearHighlights();
+
+            const items = Array.from(reviewsGrid.children) as HTMLElement[];
+
             if (wasActive) {
-              // Deselect: revert to newest
-              const items = Array.from(reviewsGrid.children) as HTMLElement[];
+              // Deselect: show all, revert to newest
+              items.forEach(item => {
+                (item as HTMLElement).style.display = '';
+              });
               items.sort((a, b) => {
                 const aVal = parseFloat(a.dataset.date || '0');
                 const bVal = parseFloat(b.dataset.date || '0');
@@ -151,27 +170,30 @@ const bannerImageUrls = location.bannerImages?.map(image =>
               return;
             }
             btn.classList.add('active');
-            
+
             const sortBy = btn.dataset.sort;
-            const items = Array.from(reviewsGrid.children) as HTMLElement[];
-            
-            items.sort((a, b) => {
-              const attrMap: Record<string, string> = {
-                vegan: 'vegan',
-                glutenFree: 'glutenFree',
-                workability: 'workability',
-                coffee: 'coffee',
-                health: 'health',
-                croissants: 'croissants',
-                newest: 'date',
-              };
-              const attr = attrMap[sortBy || 'newest'] || 'date';
-              const aVal = parseFloat(a.dataset[attr] || '0');
-              const bVal = parseFloat(b.dataset[attr] || '0');
+            const dataAttr = categoryMap[sortBy || ''] || 'date';
+
+            // Hide items without a rating for this category, show the rest
+            items.forEach(item => {
+              const val = parseFloat(item.dataset[dataAttr] || '0');
+              (item as HTMLElement).style.display = val > 0 ? '' : 'none';
+            });
+
+            // Sort visible items by the selected rating (descending)
+            const visible = items.filter(item => (item as HTMLElement).style.display !== 'none');
+            visible.sort((a, b) => {
+              const aVal = parseFloat(a.dataset[dataAttr] || '0');
+              const bVal = parseFloat(b.dataset[dataAttr] || '0');
               return bVal - aVal;
             });
-            
-            items.forEach(item => reviewsGrid.appendChild(item));
+            visible.forEach(item => reviewsGrid.appendChild(item));
+
+            // Highlight the matching rating on visible cards
+            visible.forEach(item => {
+              const ratingEl = item.querySelector(`.rating-item[data-category="${sortBy}"]`);
+              if (ratingEl) ratingEl.classList.add('highlighted');
+            });
           });
         });
       }
@@ -232,6 +254,9 @@ const bannerImageUrls = location.bannerImages?.map(image =>
     cursor: pointer;
     transition: all 0.25s ease;
     font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
   }
 
   .filter-btn:hover {

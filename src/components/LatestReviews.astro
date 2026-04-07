@@ -33,7 +33,7 @@ const totalPages = Math.ceil(cafes.length / PER_PAGE);
           <button class="filter-btn" data-sort="workability">💻 Workability</button>
           <button class="filter-btn" data-sort="coffee">☕ Coffee</button>
           <button class="filter-btn" data-sort="health">🥗 Health</button>
-          <button class="filter-btn" data-sort="croissants">🥐 Croissants</button>
+          <button class="filter-btn" data-sort="pastries">🥐 Pastries</button>
         </div>
       </div>
     )}
@@ -49,7 +49,7 @@ const totalPages = Math.ceil(cafes.length / PER_PAGE);
               data-workability={cafe.workability || 0}
               data-coffee={cafe.coffeeCraftsmanship || 0}
               data-health={cafe.healthFocus || 0}
-              data-croissants={cafe.croissants || 0}
+              data-pastries={cafe.pastries || 0}
               data-date={cafe.pubDate.getTime()}
             >
               <ReviewCard
@@ -64,7 +64,7 @@ const totalPages = Math.ceil(cafes.length / PER_PAGE);
                 workability={cafe.workability}
                 coffeeCraftsmanship={cafe.coffeeCraftsmanship}
                 healthFocus={cafe.healthFocus}
-                croissants={cafe.croissants}
+                pastries={cafe.pastries}
               />
             </div>
           ))}
@@ -175,7 +175,7 @@ const totalPages = Math.ceil(cafes.length / PER_PAGE);
             workability: 'workability',
             coffee: 'coffee',
             health: 'health',
-            croissants: 'croissants',
+            pastries: 'pastries',
             newest: 'date',
           };
           const attr = attrMap[sortBy || 'newest'] || 'date';

@@ -1,0 +1,163 @@
+---
+import { Leaf, Wheat, Laptop, Coffee, Salad, Croissant } from 'lucide-astro';
+import type { BlogPost } from '../types/sanity';
+
+interface Props {
+	post: BlogPost;
+}
+
+const { post } = Astro.props;
+---
+
+<section class="ratings-section">
+	<h4>Ratings</h4>
+	<div class="ratings-chart">
+		{post.veganOptions && (
+			<a href="#rating-vegan" class="rating-bar-link">
+				<div class="rating-bar-row">
+					<div class="rating-bar-label">
+						<Leaf size={18} />
+						<span>Vegan Options</span>
+					</div>
+					<div class="rating-bar-track">
+						<div class="rating-bar-fill" style={`width: ${(post.veganOptions / 5) * 100}%`}></div>
+					</div>
+					<div class="rating-bar-score">{post.veganOptions}/5</div>
+				</div>
+			</a>
+		)}
+		{post.glutenFree && (
+			<a href="#rating-gluten-free" class="rating-bar-link">
+				<div class="rating-bar-row">
+					<div class="rating-bar-label">
+						<Wheat size={18} />
+						<span>Gluten Free</span>
+					</div>
+					<div class="rating-bar-track">
+						<div class="rating-bar-fill" style={`width: ${(post.glutenFree / 5) * 100}%`}></div>
+					</div>
+					<div class="rating-bar-score">{post.glutenFree}/5</div>
+				</div>
+			</a>
+		)}
+		{post.workability && (
+			<a href="#rating-workability" class="rating-bar-link">
+				<div class="rating-bar-row">
+					<div class="rating-bar-label">
+						<Laptop size={18} />
+						<span>Workability</span>
+					</div>
+					<div class="rating-bar-track">
+						<div class="rating-bar-fill" style={`width: ${(post.workability / 5) * 100}%`}></div>
+					</div>
+					<div class="rating-bar-score">{post.workability}/5</div>
+				</div>
+			</a>
+		)}
+		{post.coffeeCraftsmanship && (
+			<a href="#rating-coffee" class="rating-bar-link">
+				<div class="rating-bar-row">
+					<div class="rating-bar-label">
+						<Coffee size={18} />
+						<span>Coffee Craftsmanship</span>
+					</div>
+					<div class="rating-bar-track">
+						<div class="rating-bar-fill" style={`width: ${(post.coffeeCraftsmanship / 5) * 100}%`}></div>
+					</div>
+					<div class="rating-bar-score">{post.coffeeCraftsmanship}/5</div>
+				</div>
+			</a>
+		)}
+		{post.healthFocus && (
+			<a href="#rating-health" class="rating-bar-link">
+				<div class="rating-bar-row">
+					<div class="rating-bar-label">
+						<Salad size={18} />
+						<span>Health Focus</span>
+					</div>
+					<div class="rating-bar-track">
+						<div class="rating-bar-fill" style={`width: ${(post.healthFocus / 5) * 100}%`}></div>
+					</div>
+					<div class="rating-bar-score">{post.healthFocus}/5</div>
+				</div>
+			</a>
+		)}
+		{post.pastries && (
+			<a href="#rating-pastries" class="rating-bar-link">
+				<div class="rating-bar-row">
+					<div class="rating-bar-label">
+						<Croissant size={18} />
+						<span>Pastries</span>
+					</div>
+					<div class="rating-bar-track">
+						<div class="rating-bar-fill" style={`width: ${(post.pastries / 5) * 100}%`}></div>
+					</div>
+					<div class="rating-bar-score">{post.pastries}/5</div>
+				</div>
+			</a>
+		)}
+	</div>
+</section>
+
+<style>
+	.ratings-section {
+		margin-bottom: 3rem;
+	}
+
+	.ratings-chart {
+		display: flex;
+		flex-direction: column;
+		gap: 0.6rem;
+	}
+
+	.rating-bar-link {
+		display: block;
+		text-decoration: none;
+		color: inherit;
+	}
+
+	.rating-bar-row {
+		display: grid;
+		grid-template-columns: 11rem 1fr 3rem;
+		align-items: center;
+		gap: 1rem;
+		padding: 0.3rem 0;
+		transition: opacity 0.2s ease;
+	}
+
+	.rating-bar-link:hover .rating-bar-row {
+		opacity: 0.75;
+	}
+
+	.rating-bar-label {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		color: #555;
+		font-weight: 600;
+		font-size: 0.9rem;
+		white-space: nowrap;
+	}
+
+	.rating-bar-track {
+		background: #e0dbd6;
+		border-radius: 999px;
+		height: 12px;
+		overflow: hidden;
+		width: 100%;
+	}
+
+	.rating-bar-fill {
+		height: 100%;
+		border-radius: 999px;
+		background: #ff6b35;
+	}
+
+	.rating-bar-score {
+		font-size: 0.85rem;
+		font-weight: 700;
+		color: #ff6b35;
+		text-align: right;
+		white-space: nowrap;
+	}
+</style>
