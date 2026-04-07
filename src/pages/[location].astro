@@ -49,6 +49,18 @@ const bannerImageUrls = location.bannerImages?.map(image =>
 <html lang="en">
   <head>
     <BaseHead title={pageTitle} description={pageDescription} />
+    <script type="application/ld+json" set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: pageTitle,
+      description: pageDescription,
+      url: `https://cafereview.eu/${location.slug.current}`,
+      isPartOf: {
+        '@type': 'WebSite',
+        name: siteTitle,
+        url: 'https://cafereview.eu',
+      },
+    })} />
   </head>
   <body>
     <main class="homepage-main">
@@ -63,17 +75,16 @@ const bannerImageUrls = location.bannerImages?.map(image =>
           )}
           
           {locationCafes.length > 0 && (
-            <div class="sort-controls">
-              <label for="sort-by">Sort by:</label>
-              <select id="sort-by" class="sort-dropdown">
-                <option value="newest">Newest</option>
-                <option value="vegan">Vegan Options</option>
-                <option value="glutenFree">Gluten Free</option>
-                <option value="workability">Workability</option>
-                <option value="coffee">Coffee Craftsmanship</option>
-                <option value="health">Health Focus</option>
-                <option value="croissants">Croissants</option>
-              </select>
+            <div class="best-for-section">
+              <h3 class="best-for-title">Best for...</h3>
+              <div class="filter-buttons">
+                <button class="filter-btn" data-sort="vegan">🌿 Vegan</button>
+                <button class="filter-btn" data-sort="glutenFree">🌾 Gluten Free</button>
+                <button class="filter-btn" data-sort="workability">💻 Workability</button>
+                <button class="filter-btn" data-sort="coffee">☕ Coffee</button>
+                <button class="filter-btn" data-sort="health">🥗 Health</button>
+                <button class="filter-btn" data-sort="croissants">🥐 Croissants</button>
+              </div>
             </div>
           )}
 
@@ -119,55 +130,49 @@ const bannerImageUrls = location.bannerImages?.map(image =>
     <Footer />
     
     <script>
-      const sortDropdown = document.getElementById('sort-by') as HTMLSelectElement;
+      const filterBtns = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
       const reviewsGrid = document.getElementById('reviews-grid');
       
-      if (sortDropdown && reviewsGrid) {
-        sortDropdown.addEventListener('change', () => {
-          const sortBy = sortDropdown.value;
-          const items = Array.from(reviewsGrid.children) as HTMLElement[];
-          
-          items.sort((a, b) => {
-            let aValue: number, bValue: number;
+      if (filterBtns.length && reviewsGrid) {
+        filterBtns.forEach(btn => {
+          btn.addEventListener('click', () => {
+            const wasActive = btn.classList.contains('active');
+            filterBtns.forEach(b => b.classList.remove('active'));
             
-            switch(sortBy) {
-              case 'vegan':
-                aValue = parseFloat(a.dataset.vegan || '0');
-                bValue = parseFloat(b.dataset.vegan || '0');
-                break;
-              case 'glutenFree':
-                aValue = parseFloat(a.dataset.glutenFree || '0');
-                bValue = parseFloat(b.dataset.glutenFree || '0');
-                break;
-              case 'workability':
-                aValue = parseFloat(a.dataset.workability || '0');
-                bValue = parseFloat(b.dataset.workability || '0');
-                break;
-              case 'coffee':
-                aValue = parseFloat(a.dataset.coffee || '0');
-                bValue = parseFloat(b.dataset.coffee || '0');
-                break;
-              case 'health':
-                aValue = parseFloat(a.dataset.health || '0');
-                bValue = parseFloat(b.dataset.health || '0');
-                break;
-              case 'croissants':
-                aValue = parseFloat(a.dataset.croissants || '0');
-                bValue = parseFloat(b.dataset.croissants || '0');
-                break;
-              case 'newest':
-              default:
-                aValue = parseFloat(a.dataset.date || '0');
-                bValue = parseFloat(b.dataset.date || '0');
-                break;
+            if (wasActive) {
+              // Deselect: revert to newest
+              const items = Array.from(reviewsGrid.children) as HTMLElement[];
+              items.sort((a, b) => {
+                const aVal = parseFloat(a.dataset.date || '0');
+                const bVal = parseFloat(b.dataset.date || '0');
+                return bVal - aVal;
+              });
+              items.forEach(item => reviewsGrid.appendChild(item));
+              return;
             }
+            btn.classList.add('active');
             
-            // Sort descending (highest first)
-            return bValue - aValue;
+            const sortBy = btn.dataset.sort;
+            const items = Array.from(reviewsGrid.children) as HTMLElement[];
+            
+            items.sort((a, b) => {
+              const attrMap: Record<string, string> = {
+                vegan: 'vegan',
+                glutenFree: 'glutenFree',
+                workability: 'workability',
+                coffee: 'coffee',
+                health: 'health',
+                croissants: 'croissants',
+                newest: 'date',
+              };
+              const attr = attrMap[sortBy || 'newest'] || 'date';
+              const aVal = parseFloat(a.dataset[attr] || '0');
+              const bVal = parseFloat(b.dataset[attr] || '0');
+              return bVal - aVal;
+            });
+            
+            items.forEach(item => reviewsGrid.appendChild(item));
           });
-          
-          // Reorder the DOM elements
-          items.forEach(item => reviewsGrid.appendChild(item));
         });
       }
     </script>
@@ -198,37 +203,46 @@ const bannerImageUrls = location.bannerImages?.map(image =>
     margin-bottom: 2rem;
   }
 
-  .sort-controls {
+  .best-for-section {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .best-for-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #333;
+    margin: 0 0 1rem 0;
+  }
+
+  .filter-buttons {
     display: flex;
-    align-items: center;
+    flex-wrap: wrap;
     justify-content: center;
-    gap: 1rem;
-    margin-bottom: 2rem;
+    gap: 0.6rem;
   }
 
-  .sort-controls label {
-    font-weight: 600;
-    color: #333;
-  }
-
-  .sort-dropdown {
-    padding: 0.5rem 1rem;
+  .filter-btn {
+    padding: 0.5rem 1.1rem;
     border: 2px solid #ddd;
-    border-radius: 8px;
+    border-radius: 50px;
     background: white;
-    font-size: 1rem;
-    color: #333;
+    font-size: 0.95rem;
+    color: #555;
     cursor: pointer;
-    transition: border-color 0.3s ease;
+    transition: all 0.25s ease;
+    font-weight: 500;
   }
 
-  .sort-dropdown:hover {
+  .filter-btn:hover {
     border-color: #ff6b35;
+    color: #ff6b35;
   }
 
-  .sort-dropdown:focus {
-    outline: none;
+  .filter-btn.active {
+    background: #ff6b35;
     border-color: #ff6b35;
+    color: white;
   }
 
   .section-header h2 {

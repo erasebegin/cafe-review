@@ -17,12 +17,34 @@ type Props = {
 
 const { title, description, pubDate, updatedDate, heroImage, post } = Astro.props;
 
-console.log('BlogPost layout - post.location:', post?.location);
+const jsonLd = {
+	'@context': 'https://schema.org',
+	'@type': 'Article',
+	headline: title,
+	description: description,
+	image: heroImage,
+	datePublished: pubDate.toISOString(),
+	...(updatedDate && { dateModified: updatedDate.toISOString() }),
+	publisher: {
+		'@type': 'Organization',
+		name: 'Cafe Review',
+		url: 'https://cafereview.eu',
+	},
+	...(post?.address && {
+		about: {
+			'@type': 'CafeOrCoffeeShop',
+			name: title,
+			...(post.address && { address: post.address }),
+			...(post.phone && { telephone: post.phone }),
+		},
+	}),
+};
 ---
 
 <html lang="en">
 	<head>
-		<BaseHead title={title} description={description} />
+		<BaseHead title={title} description={description} article={true} />
+		<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 		<style>
 			main {
 				width: 100%;
@@ -95,7 +117,7 @@ console.log('BlogPost layout - post.location:', post?.location);
 		<main>
 			<article>
 				<div class="hero-image">
-					{heroImage && <img src={heroImage} alt="" width="1020" height="510" />}
+					{heroImage && <img src={heroImage} alt={title} width="1020" height="510" />}
 					<Header location={post?.location?.cityName} locationSlug={post?.location?.slug} />
 					<div class="hero-title-overlay">
 						<h1>{title}</h1>

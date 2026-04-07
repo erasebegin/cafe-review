@@ -94,7 +94,7 @@ const posts = await getAllBlogPosts();
 							<li>
 								<a href={`/blog/${post.slug}/`}>
 									{post.heroImage && (
-										<img src={post.heroImage} alt="" width="720" height="360" />
+										<img src={post.heroImage} alt={post.title} width="720" height="360" loading="lazy" />
 									)}
 									<h4 class="title">{post.title}</h4>
 									<p class="date">

@@ -53,6 +53,7 @@ try {
           )}
         </div>
         <div class="latest-cafes-container">
+          <h3 class="latest-cafes-title">Latest</h3>
           <div class="latest-cafes-grid">
             {featuredCafes.map((cafe) => (
               <a href={`/blog/${cafe.slug}`} class="latest-cafe-card">
@@ -80,11 +81,11 @@ try {
       </div>
     )}
     {showScrollIndicator ? (
-      <div class="scroll-indicator" aria-label="Scroll down">
+      <button class="scroll-indicator" aria-label="Scroll down" id="scroll-down-btn" type="button">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
           <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
         </svg>
-      </div>
+      </button>
     ) : (
       <a href="/berlin" class="map-pin" style="top: 55%; left: 63%;" aria-label="Berlin">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
@@ -95,6 +96,12 @@ try {
     )}
   </div>
 </section>
+
+<script>
+  document.getElementById('scroll-down-btn')?.addEventListener('click', () => {
+    window.scrollBy({ top: window.innerHeight, behavior: 'smooth' });
+  });
+</script>
 
 {hasMultipleImages && (
   <script>
@@ -223,6 +230,16 @@ try {
     top: 8rem;
     left: 5rem;
     z-index: 4;
+  }
+
+  .latest-cafes-title {
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin: 0 0 1rem 0.25rem;
+    text-shadow: 1px 2px 4px rgba(0, 0, 0, 0.3);
   }
 
   .latest-cafes-container {
@@ -373,6 +390,9 @@ try {
     cursor: pointer;
     filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
     animation: bounce 2s ease-in-out infinite;
+    background: none;
+    border: none;
+    padding: 0;
   }
 
   .scroll-indicator svg {

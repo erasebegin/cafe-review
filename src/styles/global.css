@@ -54,7 +54,8 @@ body {
 	margin: 0;
 	padding: 0;
 	text-align: left;
-	background: var(--paper-beige);
+	background: linear-gradient(180deg, #f8f9fa 0%, #eef1f3 40%, #e8ecef 100%);
+	min-height: 100vh;
 	word-wrap: break-word;
 	overflow-wrap: break-word;
 	color: var(--ink-brown);
@@ -62,8 +63,8 @@ body {
 	line-height: 1.7;
 }
 
-body.blog-post {
-	background: linear-gradient(180deg, #f8f9fa 0%, #eef1f3 40%, #e8ecef 100%);
+html {
+	scroll-behavior: smooth;
 }
 
 main {

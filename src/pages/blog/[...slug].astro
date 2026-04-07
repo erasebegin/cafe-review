@@ -40,58 +40,70 @@ const contentHtml = post.content ? toHTML(post.content) : '';
 			<h4>Ratings</h4>
 			<div class="ratings-grid">
 				{post.veganOptions && (
-					<div class="rating-card">
-						<div class="rating-header">
-							<Leaf size={24} />
-							<span class="rating-label">Vegan Options</span>
+					<a href="#rating-vegan" class="rating-card-link">
+						<div class="rating-card">
+							<div class="rating-header">
+								<Leaf size={24} />
+								<span class="rating-label">Vegan Options</span>
+							</div>
+							<div class="rating-score">{post.veganOptions}/5</div>
 						</div>
-						<div class="rating-score">{post.veganOptions}/5</div>
-					</div>
+					</a>
 				)}
 				{post.glutenFree && (
-					<div class="rating-card">
-						<div class="rating-header">
-							<Wheat size={24} />
-							<span class="rating-label">Gluten Free</span>
+					<a href="#rating-gluten-free" class="rating-card-link">
+						<div class="rating-card">
+							<div class="rating-header">
+								<Wheat size={24} />
+								<span class="rating-label">Gluten Free</span>
+							</div>
+							<div class="rating-score">{post.glutenFree}/5</div>
 						</div>
-						<div class="rating-score">{post.glutenFree}/5</div>
-					</div>
+					</a>
 				)}
 				{post.workability && (
-					<div class="rating-card">
-						<div class="rating-header">
-							<Laptop size={24} />
-							<span class="rating-label">Workability</span>
+					<a href="#rating-workability" class="rating-card-link">
+						<div class="rating-card">
+							<div class="rating-header">
+								<Laptop size={24} />
+								<span class="rating-label">Workability</span>
+							</div>
+							<div class="rating-score">{post.workability}/5</div>
 						</div>
-						<div class="rating-score">{post.workability}/5</div>
-					</div>
+					</a>
 				)}
 				{post.coffeeCraftsmanship && (
-					<div class="rating-card">
-						<div class="rating-header">
-							<Coffee size={24} />
-							<span class="rating-label">Coffee Craftsmanship</span>
+					<a href="#rating-coffee" class="rating-card-link">
+						<div class="rating-card">
+							<div class="rating-header">
+								<Coffee size={24} />
+								<span class="rating-label">Coffee Craftsmanship</span>
+							</div>
+							<div class="rating-score">{post.coffeeCraftsmanship}/5</div>
 						</div>
-						<div class="rating-score">{post.coffeeCraftsmanship}/5</div>
-					</div>
+					</a>
 				)}
 				{post.healthFocus && (
-					<div class="rating-card">
-						<div class="rating-header">
-							<Salad size={24} />
-							<span class="rating-label">Health Focus</span>
+					<a href="#rating-health" class="rating-card-link">
+						<div class="rating-card">
+							<div class="rating-header">
+								<Salad size={24} />
+								<span class="rating-label">Health Focus</span>
+							</div>
+							<div class="rating-score">{post.healthFocus}/5</div>
 						</div>
-						<div class="rating-score">{post.healthFocus}/5</div>
-					</div>
+					</a>
 				)}
 				{post.croissants && (
-					<div class="rating-card">
-						<div class="rating-header">
-							<Croissant size={24} />
-							<span class="rating-label">Croissants</span>
+					<a href="#rating-croissants" class="rating-card-link">
+						<div class="rating-card">
+							<div class="rating-header">
+								<Croissant size={24} />
+								<span class="rating-label">Croissants</span>
+							</div>
+							<div class="rating-score">{post.croissants}/5</div>
 						</div>
-						<div class="rating-score">{post.croissants}/5</div>
-					</div>
+					</a>
 				)}
 			</div>
 		</section>
@@ -110,7 +122,7 @@ const contentHtml = post.content ? toHTML(post.content) : '';
 				<h2>Rating Details</h2>
 				
 				{post.veganOptions && post.veganComment && (
-					<div class="rating-detail">
+					<div id="rating-vegan" class="rating-detail">
 						<div class="rating-detail-header">
 							<Leaf size={24} />
 							<h3>Vegan Options</h3>
@@ -121,7 +133,7 @@ const contentHtml = post.content ? toHTML(post.content) : '';
 				)}
 
 				{post.glutenFree && post.glutenFreeComment && (
-					<div class="rating-detail">
+					<div id="rating-gluten-free" class="rating-detail">
 						<div class="rating-detail-header">
 							<Wheat size={24} />
 							<h3>Gluten Free Options</h3>
@@ -132,7 +144,7 @@ const contentHtml = post.content ? toHTML(post.content) : '';
 				)}
 
 				{post.workability && post.workabilityComment && (
-					<div class="rating-detail">
+					<div id="rating-workability" class="rating-detail">
 						<div class="rating-detail-header">
 							<Laptop size={24} />
 							<h3>Workability</h3>
@@ -143,7 +155,7 @@ const contentHtml = post.content ? toHTML(post.content) : '';
 				)}
 
 				{post.coffeeCraftsmanship && post.coffeeCraftsmanshipComment && (
-					<div class="rating-detail">
+					<div id="rating-coffee" class="rating-detail">
 						<div class="rating-detail-header">
 							<Coffee size={24} />
 							<h3>Coffee Craftsmanship</h3>
@@ -154,7 +166,7 @@ const contentHtml = post.content ? toHTML(post.content) : '';
 				)}
 
 				{post.healthFocus && post.healthFocusComment && (
-					<div class="rating-detail">
+					<div id="rating-health" class="rating-detail">
 						<div class="rating-detail-header">
 							<Salad size={24} />
 							<h3>Health Focus</h3>
@@ -165,7 +177,7 @@ const contentHtml = post.content ? toHTML(post.content) : '';
 				)}
 
 				{post.croissants && post.croissantComment && (
-					<div class="rating-detail">
+					<div id="rating-croissants" class="rating-detail">
 						<div class="rating-detail-header">
 							<Croissant size={24} />
 							<h3>Croissants</h3>
@@ -240,16 +252,27 @@ const contentHtml = post.content ? toHTML(post.content) : '';
 		gap: 1rem;
 	}
 
+	.rating-card-link,
+	.rating-card-link:hover,
+	.rating-card-link:visited,
+	.rating-card-link:active {
+		text-decoration: none !important;
+		color: inherit;
+		display: block;
+	}
+
 	.rating-card {
 		background: #f9f9f9;
 		border-radius: 12px;
 		padding: 1.5rem;
 		border: 2px solid #e8e8e8;
-		transition: border-color 0.3s ease;
+		transition: border-color 0.3s ease, transform 0.2s ease;
+		cursor: pointer;
 	}
 
-	.rating-card:hover {
+	.rating-card-link:hover .rating-card {
 		border-color: #ff6b35;
+		transform: translateY(-2px);
 	}
 
 	.rating-header {

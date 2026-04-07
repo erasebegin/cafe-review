@@ -23,6 +23,13 @@ try {
 <html lang="en">
 	<head>
 		<BaseHead title={siteTitle} description={siteDescription} />
+		<script type="application/ld+json" set:html={JSON.stringify({
+			'@context': 'https://schema.org',
+			'@type': 'WebSite',
+			name: siteTitle,
+			description: siteDescription,
+			url: 'https://cafereview.eu',
+		})} />
 	</head>
 	<body>
 		<main class="homepage-main">
