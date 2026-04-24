@@ -1,7 +1,7 @@
 ---
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
-import Hero from '../components/Hero.astro';
+import HomeHero from '../components/HomeHero.astro';
 import LatestReviews from '../components/LatestReviews.astro';
 import { getSiteConfig } from '../lib/sanity-utils';
 
@@ -33,7 +33,7 @@ try {
 	</head>
 	<body>
 		<main class="homepage-main">
-			<Hero />
+			<HomeHero />
 			<LatestReviews />
 		</main>
 		<Footer />

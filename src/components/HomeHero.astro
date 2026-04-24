@@ -1,0 +1,684 @@
+---
+import { getAllBlogPosts, getAllLocations, getSiteConfig } from '../lib/sanity-utils';
+
+interface RecentLocation {
+  cityName: string;
+  slug: string;
+  photos: string[]; // up to 4 hero-image URLs for the jumbled stack
+}
+
+let title = 'Cafe Review';
+try {
+  const siteConfig = await getSiteConfig();
+  if (siteConfig?.title) title = siteConfig.title;
+} catch (error) {
+  console.error('Failed to load site config:', error);
+}
+
+let locations: Awaited<ReturnType<typeof getAllLocations>> = [];
+let cafes: Awaited<ReturnType<typeof getAllBlogPosts>> = [];
+
+try {
+  [locations, cafes] = await Promise.all([
+    getAllLocations(),
+    getAllBlogPosts(),
+  ]);
+} catch (error) {
+  console.error('Failed to load hero data:', error);
+}
+
+// Group cafes by location slug, newest first, pick top 4 with hero images
+const cafesByLocation = new Map<string, typeof cafes>();
+for (const cafe of cafes) {
+  const slug = cafe.location?.slug;
+  if (!slug) continue;
+  if (!cafesByLocation.has(slug)) cafesByLocation.set(slug, []);
+  cafesByLocation.get(slug)!.push(cafe);
+}
+for (const list of cafesByLocation.values()) {
+  list.sort((a, b) => b.pubDate.getTime() - a.pubDate.getTime());
+}
+
+// Build recent locations list. Order by most-recent cafe activity in that location,
+// fall back to alphabetical when no cafes exist. Cap at 10.
+const recentLocations: RecentLocation[] = locations
+  .map((loc) => {
+    const slug = loc.slug.current;
+    const locCafes = cafesByLocation.get(slug) ?? [];
+    const latestTs = locCafes[0]?.pubDate.getTime() ?? 0;
+    return {
+      cityName: loc.cityName,
+      slug,
+      photos: locCafes
+        .slice(0, 4)
+        .map((c) => c.heroImage)
+        .filter((u): u is string => Boolean(u)),
+      latestTs,
+    };
+  })
+  .sort((a, b) => b.latestTs - a.latestTs || a.cityName.localeCompare(b.cityName))
+  .slice(0, 10)
+  .map(({ cityName, slug, photos }) => ({ cityName, slug, photos }));
+
+// Every location for the searchable dropdown
+const allLocations = locations
+  .map((loc) => ({ cityName: loc.cityName, slug: loc.slug.current }))
+  .sort((a, b) => a.cityName.localeCompare(b.cityName));
+---
+
+<section class="home-hero">
+  <div class="hero-inner">
+    <h1 class="hero-title">{title}</h1>
+
+    <div class="location-search" data-location-search>
+      <div class="search-control">
+        <input
+          type="text"
+          id="location-search-input"
+          class="search-input"
+          placeholder="Search for a location"
+          autocomplete="off"
+          role="combobox"
+          aria-expanded="false"
+          aria-controls="location-search-list"
+          aria-autocomplete="list"
+        />
+        <button
+          type="button"
+          class="search-toggle"
+          aria-label="Toggle location list"
+          data-location-toggle
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" fill="currentColor" />
+          </svg>
+        </button>
+      </div>
+      <ul id="location-search-list" class="search-list" role="listbox" hidden>
+        {allLocations.map((loc) => (
+          <li
+            role="option"
+            class="search-option"
+            data-slug={loc.slug}
+            data-name={loc.cityName.toLowerCase()}
+          >
+            {loc.cityName}
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    {recentLocations.length > 0 && (
+      <div class="recent-section">
+        <h2 class="recent-title">Recent Locations</h2>
+        <div class="carousel" data-carousel>
+          <button type="button" class="carousel-btn prev" aria-label="Previous locations" data-carousel-prev>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" fill="currentColor" />
+            </svg>
+          </button>
+          <div class="carousel-viewport">
+            <ul class="carousel-track" data-carousel-track>
+              {recentLocations.map((loc) => (
+                <li class="location-card">
+                  <a href={`/${loc.slug}`} class="card-link">
+                    <div class="card-text">
+                      <span class="card-city">{loc.cityName}</span>
+                    </div>
+                    <div class="photo-stack" data-count={loc.photos.length}>
+                      {loc.photos.length > 0 ? (
+                        loc.photos.map((url, i) => (
+                          <span class={`polaroid polaroid-${i}`}>
+                            <img src={url} alt="" loading="lazy" />
+                          </span>
+                        ))
+                      ) : (
+                        Array.from({ length: 4 }).map((_, i) => (
+                          <span class={`polaroid polaroid-${i} polaroid-empty`}></span>
+                        ))
+                      )}
+                    </div>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <button type="button" class="carousel-btn next" aria-label="Next locations" data-carousel-next>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z" fill="currentColor" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    )}
+
+    <button type="button" class="scroll-down" data-scroll-down aria-label="Scroll for more content">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" fill="currentColor" />
+      </svg>
+      <span class="scroll-down-label">Scroll for more content</span>
+    </button>
+  </div>
+</section>
+
+<script>
+  // Searchable location combobox
+  (function initLocationSearch() {
+    const root = document.querySelector<HTMLElement>('[data-location-search]');
+    if (!root) return;
+    const input = root.querySelector<HTMLInputElement>('#location-search-input');
+    const list = root.querySelector<HTMLUListElement>('#location-search-list');
+    const toggle = root.querySelector<HTMLButtonElement>('[data-location-toggle]');
+    if (!input || !list || !toggle) return;
+
+    const options = Array.from(list.querySelectorAll<HTMLLIElement>('.search-option'));
+
+    function setOpen(open: boolean) {
+      list!.hidden = !open;
+      input!.setAttribute('aria-expanded', String(open));
+      root!.classList.toggle('open', open);
+    }
+
+    function filter() {
+      const q = input!.value.trim().toLowerCase();
+      let visible = 0;
+      options.forEach((opt) => {
+        const match = !q || (opt.dataset.name || '').includes(q);
+        opt.hidden = !match;
+        if (match) visible++;
+      });
+      setOpen(visible > 0);
+    }
+
+    function go(slug: string) {
+      if (slug) window.location.href = `/${slug}`;
+    }
+
+    input.addEventListener('focus', () => setOpen(true));
+    input.addEventListener('input', filter);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const first = options.find((o) => !o.hidden);
+        if (first) go(first.dataset.slug || '');
+      } else if (e.key === 'Escape') {
+        setOpen(false);
+      }
+    });
+
+    toggle.addEventListener('click', () => {
+      const isOpen = !list!.hidden;
+      setOpen(!isOpen);
+      if (!isOpen) input.focus();
+    });
+
+    options.forEach((opt) => {
+      opt.addEventListener('click', () => go(opt.dataset.slug || ''));
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!root!.contains(e.target as Node)) setOpen(false);
+    });
+  })();
+
+  // Infinite carousel
+  (function initCarousel() {
+    const root = document.querySelector<HTMLElement>('[data-carousel]');
+    if (!root) return;
+    const track = root.querySelector<HTMLUListElement>('[data-carousel-track]');
+    const prevBtn = root.querySelector<HTMLButtonElement>('[data-carousel-prev]');
+    const nextBtn = root.querySelector<HTMLButtonElement>('[data-carousel-next]');
+    if (!track || !prevBtn || !nextBtn) return;
+
+    // Need at least 2 items for wrapping to make sense
+    if (track.children.length < 2) {
+      prevBtn.disabled = true;
+      nextBtn.disabled = true;
+      return;
+    }
+
+    let animating = false;
+
+    function itemStep(): number {
+      const first = track!.firstElementChild as HTMLElement | null;
+      if (!first) return 0;
+      const styles = getComputedStyle(track!);
+      const gap = parseFloat(styles.columnGap || styles.gap || '0') || 0;
+      return first.getBoundingClientRect().width + gap;
+    }
+
+    function next() {
+      if (animating) return;
+      animating = true;
+      const step = itemStep();
+      track!.style.transition = 'transform 0.35s ease';
+      track!.style.transform = `translateX(${-step}px)`;
+      const onEnd = () => {
+        track!.removeEventListener('transitionend', onEnd);
+        track!.style.transition = 'none';
+        track!.style.transform = 'translateX(0)';
+        if (track!.firstElementChild) track!.appendChild(track!.firstElementChild);
+        // Force reflow so the next animation starts cleanly
+        void track!.offsetWidth;
+        animating = false;
+      };
+      track!.addEventListener('transitionend', onEnd);
+    }
+
+    function prev() {
+      if (animating) return;
+      animating = true;
+      const step = itemStep();
+      if (track!.lastElementChild) track!.prepend(track!.lastElementChild);
+      track!.style.transition = 'none';
+      track!.style.transform = `translateX(${-step}px)`;
+      void track!.offsetWidth;
+      track!.style.transition = 'transform 0.35s ease';
+      track!.style.transform = 'translateX(0)';
+      const onEnd = () => {
+        track!.removeEventListener('transitionend', onEnd);
+        animating = false;
+      };
+      track!.addEventListener('transitionend', onEnd);
+    }
+
+    nextBtn.addEventListener('click', next);
+    prevBtn.addEventListener('click', prev);
+  })();
+
+  // Scroll indicator
+  document.querySelector('[data-scroll-down]')?.addEventListener('click', () => {
+    window.scrollBy({ top: window.innerHeight, behavior: 'smooth' });
+  });
+</script>
+
+<style>
+  .home-hero {
+    position: relative;
+    min-height: 100vh;
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    /* Solid colour — sky-blue from the palette so glassmorphism reads clearly */
+    background: var(--sky-blue);
+    color: white;
+    font-family: "Atkinson", sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6rem 2rem 4rem;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  /* Soft radial accents to give the backdrop-filter something to blur */
+  .home-hero::before,
+  .home-hero::after {
+    content: "";
+    position: absolute;
+    width: 60vw;
+    height: 60vw;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.55;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .home-hero::before {
+    top: -20%;
+    left: -15%;
+    background: var(--clay-pink);
+  }
+  .home-hero::after {
+    bottom: -25%;
+    right: -20%;
+    background: var(--latte-orange);
+  }
+
+  .hero-inner {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 1200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2.5rem;
+  }
+
+  .hero-title {
+    font-family: "Atkinson", sans-serif;
+    font-size: clamp(3rem, 8vw, 6rem);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: white;
+    text-align: center;
+    margin: 0;
+    line-height: 1;
+    text-shadow: 1px 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Searchable combobox — frosted glass pill */
+  .location-search {
+    position: relative;
+    width: min(520px, 100%);
+  }
+
+  .search-control {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border-radius: 999px;
+    padding: 0.25rem 0.5rem 0.25rem 1.5rem;
+  }
+
+  .search-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: "Atkinson", sans-serif;
+    font-size: 1.1rem;
+    padding: 0.8rem 0.5rem;
+    color: white;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.25);
+  }
+
+  .search-input::placeholder {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .search-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: white;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.25));
+  }
+
+  .search-toggle:hover {
+    background: rgba(255, 255, 255, 0.25);
+  }
+
+  .search-toggle svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .search-list {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.22);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    border-radius: 20px;
+    list-style: none;
+    margin: 0;
+    padding: 0.5rem 0;
+    max-height: 280px;
+    overflow-y: auto;
+    z-index: 20;
+  }
+
+  .search-option {
+    padding: 0.65rem 1.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    color: white;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  .search-option:hover,
+  .search-option:focus {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  /* Recent Locations */
+  .recent-section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .recent-title {
+    font-family: "Atkinson", sans-serif;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700;
+    margin: 0;
+    color: white;
+    text-shadow: 1px 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .carousel {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .carousel-btn {
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: white;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease, transform 0.2s ease;
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+  }
+
+  .carousel-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.25);
+    transform: scale(1.05);
+  }
+
+  .carousel-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .carousel-btn svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  /* Frosted glass container matching .latest-cafes-container on location page */
+  .carousel-viewport {
+    flex: 1;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border-radius: 24px;
+    padding: 1.5rem;
+  }
+
+  .carousel-track {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 1rem;
+    will-change: transform;
+  }
+
+  .location-card {
+    flex: 0 0 calc((100% - 3rem) / 4); /* 4 visible with 3 gaps */
+    min-width: 0;
+  }
+
+  /* Dark glass card like .latest-cafe-card */
+  .card-link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: white;
+    padding: 0.9rem 0.75rem;
+    border-radius: 16px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: transform 0.3s ease, background 0.3s ease;
+  }
+
+  .card-link:hover {
+    transform: translateY(-4px);
+    background: rgba(0, 0, 0, 0.45);
+  }
+
+  .card-text {
+    text-align: center;
+  }
+
+  .card-city {
+    display: block;
+    font-family: "Atkinson", sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: white;
+    line-height: 1.2;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
+  }
+
+  /* Jumbled polaroid stack */
+  .photo-stack {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+  }
+
+  .polaroid {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 58%;
+    aspect-ratio: 1 / 1;
+    background: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    padding: 6px 6px 20px;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+    box-sizing: border-box;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+  }
+
+  .polaroid img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 0;
+  }
+
+  .polaroid-empty {
+    background: rgba(255, 255, 255, 0.7);
+  }
+
+  /* Jumble the stack: each photo rotated/offset differently */
+  .polaroid-0 {
+    transform: translate(-75%, -50%) rotate(-12deg);
+    z-index: 1;
+  }
+  .polaroid-1 {
+    transform: translate(-55%, -52%) rotate(-4deg);
+    z-index: 2;
+  }
+  .polaroid-2 {
+    transform: translate(-40%, -48%) rotate(6deg);
+    z-index: 3;
+  }
+  .polaroid-3 {
+    transform: translate(-20%, -50%) rotate(14deg);
+    z-index: 4;
+  }
+
+  .card-link:hover .polaroid-0 { transform: translate(-80%, -52%) rotate(-16deg); }
+  .card-link:hover .polaroid-3 { transform: translate(-15%, -52%) rotate(18deg); }
+
+  /* Scroll indicator */
+  .scroll-down {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: white;
+    font-family: "Atkinson", sans-serif;
+    padding: 0;
+    margin-top: 0.5rem;
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+    animation: bounce 2.2s ease-in-out infinite;
+  }
+
+  .scroll-down svg {
+    width: 42px;
+    height: 42px;
+  }
+
+  .scroll-down-label {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(6px); }
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .location-card {
+      flex: 0 0 calc((100% - 2rem) / 3);
+    }
+  }
+
+  @media (max-width: 680px) {
+    .home-hero {
+      padding: 5rem 1rem 3rem;
+    }
+    .location-card {
+      flex: 0 0 calc((100% - 1rem) / 2);
+    }
+    .carousel-viewport {
+      padding: 1rem;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .location-card {
+      flex: 0 0 100%;
+    }
+    .carousel-track {
+      gap: 0.5rem;
+    }
+  }
+</style>
