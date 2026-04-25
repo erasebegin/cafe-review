@@ -1,0 +1,31 @@
+# Netlify configuration.
+#
+# `npm run build` runs `prebuild` (OG image generation) then `astro build`.
+# After Netlify finishes deploying, the IndexNow hook submits sitemap URLs to
+# Bing/Yandex/Seznam etc. when `INDEXNOW_KEY` is set.
+
+[build]
+  command = "pnpm run build && node scripts/indexnow.mjs"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+  # Required for `npm run prebuild` (Sharp pulls a prebuilt binary; the version
+  # already in package.json supports macOS arm64 + linux x64).
+  NPM_FLAGS = "--no-audit --no-fund"
+
+# Long-cache hashed assets (Astro fingerprints these), short-cache HTML.
+[[headers]]
+  for = "/_astro/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"

@@ -42,13 +42,21 @@ const locationName = location?.name || '';
 const locationSlug = location?.slug || '';
 ---
 
-<a href={`/blog/${slug}`} class="review-card" data-location={locationSlug}>
+<a
+  href={`/blog/${slug}`}
+  class="review-card"
+  data-location={locationSlug}
+  aria-label={locationName ? `Read review of ${title} in ${locationName}` : `Read review of ${title}`}
+>
   <div class="review-image">
     {featuredImageUrl ? (
       <img 
         src={featuredImageUrl} 
         alt={title}
+        width="560"
+        height="360"
         loading="lazy"
+        decoding="async"
       />
     ) : (
       <div class="image-placeholder">

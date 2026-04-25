@@ -1,5 +1,6 @@
 ---
 import BlogPost from '../../layouts/BlogPost.astro';
+import PostHogLayout from '../../layouts/PostHogLayout.astro';
 import RatingsChart from '../../components/RatingsChart.astro';
 import { getAllBlogSlugs, getBlogPostBySlug } from '../../lib/sanity-utils';
 import { toHTML } from '@portabletext/to-html';
@@ -27,6 +28,7 @@ if (!post) {
 const contentHtml = post.content ? toHTML(post.content) : '';
 ---
 
+<PostHogLayout>
 <BlogPost 
 	title={post.title}
 	description={post.description}
@@ -162,6 +164,7 @@ const contentHtml = post.content ? toHTML(post.content) : '';
 		)}
 	</div>
 </BlogPost>
+</PostHogLayout>
 
 <style>
 	.review-content {

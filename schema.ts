@@ -29,7 +29,33 @@ export default {
     {
       name: 'description',
       title: 'Description',
-      type: 'text'
+      type: 'text',
+      description: 'Short summary used as the default meta description (≤160 chars).',
+      validation: (Rule: any) => Rule.max(200)
+    },
+    // SEO overrides (optional). When present, the site uses these in <title>
+    // and <meta name="description">. Otherwise it falls back to title/description.
+    {
+      name: 'seoTitle',
+      title: 'SEO Title',
+      type: 'string',
+      description: 'Optional <title> override. Aim for 50–60 characters incl. brand.',
+      validation: (Rule: any) => Rule.max(70)
+    },
+    {
+      name: 'seoDescription',
+      title: 'SEO Description',
+      type: 'text',
+      description: 'Optional meta description override. Aim for 140–160 characters.',
+      validation: (Rule: any) => Rule.max(200)
+    },
+    {
+      name: 'openingHours',
+      title: 'Opening Hours',
+      type: 'array',
+      of: [{type: 'string'}],
+      description:
+        'One entry per range, in schema.org format (e.g. "Mo-Fr 08:00-17:00", "Sa 09:00-14:00").'
     },
     {
       name: 'visits',

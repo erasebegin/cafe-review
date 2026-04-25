@@ -3,15 +3,16 @@ import type { SanityCafe, SanitySiteConfig, SanityLocation, BlogPost } from '../
 
 // Transform Sanity cafe to match Astro's blog format
 function transformCafeToBlogPost(cafe: SanityCafe): BlogPost {
-  
   return {
     id: cafe._id,
     title: cafe.title,
     slug: cafe.slug.current,
     description: cafe.description || `A review of ${cafe.title}`,
+    seoTitle: cafe.seoTitle,
+    seoDescription: cafe.seoDescription,
     pubDate: new Date(cafe._createdAt),
     updatedDate: cafe._updatedAt ? new Date(cafe._updatedAt) : undefined,
-    heroImage: cafe.featuredImage ? urlFor(cafe.featuredImage).width(720).height(360).url() : undefined,
+    heroImage: cafe.featuredImage ? urlFor(cafe.featuredImage).width(1200).height(630).auto('format').url() : undefined,
     content: cafe.reviewBody || [],
     rating: cafe.coffeeCraftsmanshipRating, // Using coffee craftsmanship as main rating
     location: cafe.location ? {
@@ -32,10 +33,13 @@ function transformCafeToBlogPost(cafe: SanityCafe): BlogPost {
     pastries: cafe.croissantRating,
     croissantComment: cafe.croissantComment,
     address: cafe.address,
-    phone: cafe.phone,
+    // Schema field is `phoneNumber` (see schema.ts) but legacy code reads `cafe.phone`.
+    // Accept either to avoid breaking existing data.
+    phone: cafe.phone || cafe.phoneNumber,
     website: cafe.instagram || cafe.facebook,
-    openingHours: undefined,
-    images: cafe.gallery?.map(img => urlFor(img).width(800).height(600).url()) || []
+    openingHours: cafe.openingHours,
+    geo: cafe.geoLocation,
+    images: cafe.gallery?.map(img => urlFor(img).width(800).height(600).auto('format').url()) || []
   }
 }
 

@@ -52,6 +52,9 @@ export interface SanityCafe {
   featuredImage?: SanityImage
   gallery?: SanityImage[]
   location?: SanityLocation
+  // SEO overrides
+  seoTitle?: string
+  seoDescription?: string
   // Rating fields
   veganRating?: number
   veganComment?: string
@@ -71,12 +74,14 @@ export interface SanityCafe {
   drinks?: string[]
   facilities?: string[]
   // Location & contact
-  geopoint?: { lat: number; lng: number }
+  geoLocation?: { lat: number; lng: number }
   address?: string
   phone?: string
+  phoneNumber?: string
   email?: string
   instagram?: string
   facebook?: string
+  openingHours?: string[]
 }
 
 // Site configuration
@@ -88,12 +93,21 @@ export interface SanitySiteConfig {
   socialMedia?: any
 }
 
+// Location SEO fields (added in schema update).
+export interface SanityLocationSeo {
+  seoTitle?: string
+  seoDescription?: string
+}
+
 // Processed cafe for Astro (adapted as blog-like content)
 export interface BlogPost {
   id: string
   title: string
   slug: string
   description: string
+  // SEO overrides (preferred for <title>/meta description when present).
+  seoTitle?: string
+  seoDescription?: string
   pubDate: Date
   updatedDate?: Date
   heroImage?: string
@@ -119,6 +133,7 @@ export interface BlogPost {
   address?: string
   phone?: string
   website?: string
-  openingHours?: string
+  openingHours?: string[]
+  geo?: { lat: number; lng: number }
   images?: string[]
 }

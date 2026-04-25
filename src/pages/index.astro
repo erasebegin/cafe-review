@@ -3,10 +3,12 @@ import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import HomeHero from '../components/HomeHero.astro';
 import LatestReviews from '../components/LatestReviews.astro';
+import PostHogLayout from '../layouts/PostHogLayout.astro';
 import { getSiteConfig } from '../lib/sanity-utils';
+import { SITE_TITLE, SITE_DESCRIPTION, SITE_TAGLINE, SITE_URL } from '../consts';
 
-let siteTitle = 'Cafe Reviews';
-let siteDescription = 'Discovering the perfect cup, one cafe at a time';
+let siteTitle = SITE_TITLE;
+let siteDescription = SITE_DESCRIPTION;
 
 try {
   const siteConfig = await getSiteConfig();
@@ -17,28 +19,44 @@ try {
 } catch (error) {
   console.error('Failed to load site config for meta tags:', error);
 }
+
+// SEO title pattern: "Cafe Review – Honest Cafe Reviews Across Europe"
+const pageTitle = `${siteTitle} – ${SITE_TAGLINE}`;
+
+const websiteJsonLd = {
+	'@context': 'https://schema.org',
+	'@type': 'WebSite',
+	name: siteTitle,
+	alternateName: SITE_TAGLINE,
+	description: siteDescription,
+	url: SITE_URL,
+	potentialAction: {
+		'@type': 'SearchAction',
+		target: {
+			'@type': 'EntryPoint',
+			urlTemplate: `${SITE_URL}/?q={search_term_string}`,
+		},
+		'query-input': 'required name=search_term_string',
+	},
+};
 ---
 
-<!doctype html>
-<html lang="en">
-	<head>
-		<BaseHead title={siteTitle} description={siteDescription} />
-		<script type="application/ld+json" set:html={JSON.stringify({
-			'@context': 'https://schema.org',
-			'@type': 'WebSite',
-			name: siteTitle,
-			description: siteDescription,
-			url: 'https://cafereview.eu',
-		})} />
-	</head>
-	<body>
-		<main class="homepage-main">
-			<HomeHero />
-			<LatestReviews />
-		</main>
-		<Footer />
-	</body>
-</html>
+<PostHogLayout>
+	<!doctype html>
+	<html lang="en">
+		<head>
+			<BaseHead title={pageTitle} description={siteDescription} />
+			<script type="application/ld+json" set:html={JSON.stringify(websiteJsonLd)} />
+		</head>
+		<body>
+			<main class="homepage-main">
+				<HomeHero />
+				<LatestReviews />
+			</main>
+			<Footer />
+		</body>
+	</html>
+</PostHogLayout>
 
 <style>
 	.homepage-main {

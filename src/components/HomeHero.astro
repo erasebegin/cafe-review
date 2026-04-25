@@ -1,5 +1,6 @@
 ---
 import { getAllBlogPosts, getAllLocations, getSiteConfig } from '../lib/sanity-utils';
+import { SITE_TITLE, SITE_TAGLINE } from '../consts';
 
 interface RecentLocation {
   cityName: string;
@@ -7,13 +8,17 @@ interface RecentLocation {
   photos: string[]; // up to 4 hero-image URLs for the jumbled stack
 }
 
-let title = 'Cafe Review';
+// Brand wordmark (singular "Cafe Review" — matches cafereview.eu).
+let brand = SITE_TITLE;
 try {
   const siteConfig = await getSiteConfig();
-  if (siteConfig?.title) title = siteConfig.title;
+  if (siteConfig?.title) brand = siteConfig.title;
 } catch (error) {
   console.error('Failed to load site config:', error);
 }
+
+// Keyword-rich H1 (the brand becomes a visual wordmark, semantically a <p>).
+const heroHeadline = SITE_TAGLINE;
 
 let locations: Awaited<ReturnType<typeof getAllLocations>> = [];
 let cafes: Awaited<ReturnType<typeof getAllBlogPosts>> = [];
@@ -68,7 +73,8 @@ const allLocations = locations
 
 <section class="home-hero">
   <div class="hero-inner">
-    <h1 class="hero-title">{title}</h1>
+    <p class="hero-wordmark" aria-hidden="true">{brand}</p>
+    <h1 class="hero-title">{heroHeadline}</h1>
 
     <div class="location-search" data-location-search>
       <div class="search-control">
@@ -121,7 +127,11 @@ const allLocations = locations
             <ul class="carousel-track" data-carousel-track>
               {recentLocations.map((loc) => (
                 <li class="location-card">
-                  <a href={`/${loc.slug}`} class="card-link">
+                  <a
+                    href={`/${loc.slug}`}
+                    class="card-link"
+                    aria-label={`Browse cafes in ${loc.cityName}`}
+                  >
                     <div class="card-text">
                       <span class="card-city">{loc.cityName}</span>
                     </div>
@@ -129,7 +139,14 @@ const allLocations = locations
                       {loc.photos.length > 0 ? (
                         loc.photos.map((url, i) => (
                           <span class={`polaroid polaroid-${i}`}>
-                            <img src={url} alt="" loading="lazy" />
+                            <img
+                              src={url}
+                              alt=""
+                              width="320"
+                              height="320"
+                              loading="lazy"
+                              decoding="async"
+                            />
                           </span>
                         ))
                       ) : (
@@ -344,7 +361,7 @@ const allLocations = locations
     gap: 2.5rem;
   }
 
-  .hero-title {
+  .hero-wordmark {
     font-family: "Atkinson", sans-serif;
     font-size: clamp(3rem, 8vw, 6rem);
     font-weight: 700;
@@ -355,6 +372,19 @@ const allLocations = locations
     margin: 0;
     line-height: 1;
     text-shadow: 1px 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .hero-title {
+    font-family: "Atkinson", sans-serif;
+    font-size: clamp(1.25rem, 2.4vw, 1.75rem);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: none;
+    color: rgba(255, 255, 255, 0.95);
+    text-align: center;
+    margin: 0;
+    line-height: 1.3;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
   }
 
   /* Searchable combobox — frosted glass pill */

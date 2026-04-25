@@ -2,10 +2,12 @@
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Hero from '../components/Hero.astro';
+import PostHogLayout from '../layouts/PostHogLayout.astro';
 import ReviewCard from '../components/ReviewCard.astro';
 import { Leaf, Wheat, Laptop, Coffee, Salad, Croissant } from 'lucide-astro';
 import { getAllLocations, getAllBlogPosts, getSiteConfig } from '../lib/sanity-utils';
 import { urlFor } from '../lib/sanity';
+import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL } from '../consts';
 
 export async function getStaticPaths() {
   const locations = await getAllLocations();
@@ -24,8 +26,8 @@ const locationCafes = allCafes.filter(cafe =>
   cafe.location?.slug === location.slug.current
 );
 
-let siteTitle = 'Cafe Reviews';
-let siteDescription = 'Discovering the perfect cup, one cafe at a time';
+let siteTitle = SITE_TITLE;
+let siteDescription = SITE_DESCRIPTION;
 
 try {
   const siteConfig = await getSiteConfig();
@@ -37,8 +39,44 @@ try {
   console.error('Failed to load site config for meta tags:', error);
 }
 
-const pageTitle = `${location.cityName} Cafes - ${siteTitle}`;
-const pageDescription = location.description || `Discover the best cafes in ${location.cityName}`;
+// SEO-optimised title pattern with target keywords.
+const pageTitle = `Best Cafes in ${location.cityName} – Vegan, Gluten-Free, Workable | ${siteTitle}`;
+const pageDescription = location.description
+  ? location.description.slice(0, 160)
+  : `Honest reviews of the best cafes in ${location.cityName} — vegan, gluten-free, coffee craftsmanship, workability and pastries.`;
+
+const locationUrl = `${SITE_URL}/${location.slug.current}`;
+
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+    { '@type': 'ListItem', position: 2, name: location.cityName, item: locationUrl },
+  ],
+};
+
+const collectionJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: pageTitle,
+  description: pageDescription,
+  url: locationUrl,
+  isPartOf: {
+    '@type': 'WebSite',
+    name: siteTitle,
+    url: SITE_URL,
+  },
+  mainEntity: {
+    '@type': 'ItemList',
+    itemListElement: locationCafes.map((cafe, idx) => ({
+      '@type': 'ListItem',
+      position: idx + 1,
+      url: `${SITE_URL}/blog/${cafe.slug}`,
+      name: cafe.title,
+    })),
+  },
+};
 
 // Get all banner images from bannerImages array
 const bannerImageUrls = location.bannerImages?.map(image => 
@@ -46,22 +84,13 @@ const bannerImageUrls = location.bannerImages?.map(image =>
 ) || [];
 ---
 
+<PostHogLayout>
 <!doctype html>
 <html lang="en">
   <head>
     <BaseHead title={pageTitle} description={pageDescription} />
-    <script type="application/ld+json" set:html={JSON.stringify({
-      '@context': 'https://schema.org',
-      '@type': 'CollectionPage',
-      name: pageTitle,
-      description: pageDescription,
-      url: `https://cafereview.eu/${location.slug.current}`,
-      isPartOf: {
-        '@type': 'WebSite',
-        name: siteTitle,
-        url: 'https://cafereview.eu',
-      },
-    })} />
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbJsonLd)} />
+    <script type="application/ld+json" set:html={JSON.stringify(collectionJsonLd)} />
   </head>
   <body>
     <main class="homepage-main">
@@ -200,6 +229,7 @@ const bannerImageUrls = location.bannerImages?.map(image =>
     </script>
   </body>
 </html>
+</PostHogLayout>
 
 <style>
   .homepage-main {

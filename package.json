@@ -7,7 +7,9 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-"sync-joplin": "tsx --env-file=.env scripts/joplin-to-sanity.ts"
+    "prebuild": "node scripts/generate-og.mjs",
+    "generate:og": "node scripts/generate-og.mjs",
+    "sync-joplin": "tsx --env-file=.env scripts/joplin-to-sanity.ts"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.8",
