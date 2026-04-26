@@ -1,10 +1,9 @@
 ---
-import AboutHeroImage from '../assets/blog-placeholder-about.jpg';
+import AboutHeroImage from '../assets/about-hero.jpg';
 import Layout from '../layouts/BlogPost.astro';
 import PostHogLayout from '../layouts/PostHogLayout.astro';
-// TODO: real About copy — cover authors, rating methodology (vegan,
-// gluten-free, workability, coffee craftsmanship, health focus, pastries),
-// regions covered, and contact info. Aim for ~300–500 unique words.
+
+const heroImageSrc = AboutHeroImage.src;
 ---
 
 <PostHogLayout>
@@ -12,8 +11,20 @@ import PostHogLayout from '../layouts/PostHogLayout.astro';
 	title="About | Cafe Review"
 	description="About Cafe Review — honest, methodical cafe reviews across Europe."
 	pubDate={new Date('2025-01-01')}
-	heroImage={AboutHeroImage}
+	heroImage={heroImageSrc}
+	showLastUpdated={false}
+	contentOverlay={true}
 >
-	<p>About copy coming soon.</p>
+	<h1>About Cafe Review</h1>
+
+	<p>Cafe-Review helps you quickly decide whether a café actually fits your needs—whether that's working, meeting, or spending time comfortably—through clear, first-hand, consistently structured reviews.</p>
+
+	<p>Cafe-Review is a curated platform built on a simple idea: a good café isn't just about coffee—it's about how well the space works for you. Each review is based on direct, real-world experience and goes beyond surface impressions to assess what actually matters in practice. That includes Wi-Fi reliability, seating comfort, noise levels, workspace suitability, power access, cleanliness, and overall atmosphere.</p>
+
+	<p>The project started in Berlin and is designed to scale across cities worldwide, building a consistent, high-quality collection of café reviews you can trust wherever you are. Unlike crowd-sourced platforms, every review is written by a single author using the same criteria and level of detail. This ensures clarity, comparability, and a reliable standard across locations.</p>
+
+	<p>The tone is personal but precise—focused on being honest, useful, and easy to scan. The goal is not to list every café, but to highlight the ones worth your time, depending on how you plan to use them.</p>
+
+	<p>Cafe-Review is built for remote workers, freelancers, digital nomads, students, and anyone who values choosing the right environment. As the platform grows, it aims to become a global reference for cafés that are not just good—but genuinely functional.</p>
 </Layout>
 </PostHogLayout>

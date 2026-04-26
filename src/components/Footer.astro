@@ -1,96 +1,73 @@
 ---
-import { getAllLocations } from '../lib/sanity-utils';
 import { SITE_TITLE } from '../consts';
 
 const today = new Date();
-
-let locations: Awaited<ReturnType<typeof getAllLocations>> = [];
-try {
-	locations = await getAllLocations();
-} catch (error) {
-	console.error('Footer: failed to load locations from Sanity:', error);
-}
 ---
 
 <footer>
-	<div class="footer-grid">
-		<nav class="footer-col" aria-label="Locations">
-			<h3>Locations</h3>
-			{locations.length > 0 ? (
-				<ul>
-					{locations.map((loc) => (
-						<li>
-							<a
-								href={`/${loc.slug.current}/`}
-								aria-label={`Browse cafes in ${loc.cityName}`}
-							>
-								{loc.cityName}
-							</a>
-						</li>
-					))}
-				</ul>
-			) : (
-				<p class="footer-empty">More cities coming soon.</p>
-			)}
-		</nav>
-		<nav class="footer-col" aria-label="Site">
-			<h3>Site</h3>
-			<ul>
-				<li><a href="/">Home</a></li>
-				<li><a href="/about/">About</a></li>
-				<li><a href="/sitemap/">Sitemap</a></li>
-				<li><a href="/rss.xml">RSS feed</a></li>
-			</ul>
-		</nav>
-	</div>
+	<nav class="footer-nav" aria-label="Site">
+		<ul>
+			<li><a href="/">Home</a></li>
+			<li><a href="/about/">About</a></li>
+			<li><a href="/contact/">Contact</a></li>
+			<li><a href="/sitemap/">Sitemap</a></li>
+			<li><a href="/rss.xml">RSS feed</a></li>
+		</ul>
+	</nav>
 	<p class="footer-credit">
 		&copy; {today.getFullYear()} {SITE_TITLE}. All rights reserved.
 	</p>
 </footer>
 <style>
 	footer {
+		position: relative;
 		padding: 2.5em 1.5em 2em;
-		background: #E0E0E0;
-		color: #616161;
+		margin: 2rem 1rem 1rem;
+		background: rgba(255, 255, 255, 0.45);
+		backdrop-filter: blur(16px) saturate(180%);
+		-webkit-backdrop-filter: blur(16px) saturate(180%);
+		border: 1px solid rgba(255, 255, 255, 0.6);
+		border-radius: 16px;
+		box-shadow:
+			0 8px 32px rgba(31, 38, 135, 0.12),
+			inset 0 1px 0 rgba(255, 255, 255, 0.5);
+		color: #444;
 		text-align: center;
 	}
-	.footer-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+	.footer-nav ul {
+		list-style: none !important;
+		list-style-type: none !important;
+		padding: 0 !important;
+		margin: 0 0 1.25rem;
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		justify-content: center;
 		gap: 2rem;
-		max-width: 900px;
-		margin: 0 auto 1.5rem;
-		text-align: left;
 	}
-	.footer-col h3 {
-		font-size: 0.95rem;
-		text-transform: uppercase;
-		letter-spacing: 0.08em;
-		margin: 0 0 0.5rem 0;
-		color: #333;
-	}
-	.footer-col ul {
-		list-style: none;
+	.footer-nav li {
+		list-style: none !important;
+		display: inline-block;
+		margin: 0;
 		padding: 0;
-		margin: 0;
 	}
-	.footer-col li {
-		line-height: 1.9;
+	.footer-nav li::marker {
+		content: "";
 	}
-	.footer-col a {
-		color: #ff6b35;
+	.footer-nav a {
+		color: var(--ink-brown);
 		text-decoration: none;
+		font-weight: 600;
+		letter-spacing: 0.02em;
+		transition: color 0.2s ease;
 	}
-	.footer-col a:hover {
-		text-decoration: underline;
-	}
-	.footer-empty {
-		color: #888;
-		font-style: italic;
-		margin: 0;
+	.footer-nav a:hover {
+		color: var(--maple-brown);
 	}
 	.footer-credit {
 		margin: 0;
 		font-size: 0.85rem;
+		color: var(--ink-brown);
+		opacity: 0.75;
 	}
 </style>
