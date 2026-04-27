@@ -26,7 +26,7 @@ const totalPages = Math.ceil(cafes.length / PER_PAGE);
       <LocationDropdown />
     </div>
     {cafes.length > 0 && (
-      <CategoryFilter reviewGridId="reviews-grid" theme="light" />
+      <CategoryFilter reviewGridId="reviews-grid" theme="dark" />
     )}
     {cafes.length > 0 ? (
       <>
@@ -105,12 +105,12 @@ const totalPages = Math.ceil(cafes.length / PER_PAGE);
         const btn = document.createElement('button');
         btn.className = `page-num${i === currentPage ? ' active' : ''}`;
         btn.textContent = String(i);
-        btn.addEventListener('click', () => goToPage(i));
+        btn.addEventListener('click', () => goToPage(i, true));
         pageNumbers.appendChild(btn);
       }
     }
 
-    function goToPage(page) {
+    function goToPage(page, scroll = true) {
       currentPage = page;
       const items = reviewsGrid.querySelectorAll('.review-item');
       items.forEach(item => {
@@ -120,28 +120,30 @@ const totalPages = Math.ceil(cafes.length / PER_PAGE);
       if (nextBtn) nextBtn.disabled = currentPage === totalPages;
       renderPageNumbers();
 
-      const section = document.getElementById('all-reviews');
-      if (section) {
-        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (scroll) {
+        const section = document.getElementById('all-reviews');
+        if (section) {
+          section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
       }
     }
 
     if (prevBtn) prevBtn.addEventListener('click', () => {
-      if (currentPage > 1) goToPage(currentPage - 1);
+      if (currentPage > 1) goToPage(currentPage - 1, true);
     });
 
     if (nextBtn) nextBtn.addEventListener('click', () => {
-      if (currentPage < totalPages) goToPage(currentPage + 1);
+      if (currentPage < totalPages) goToPage(currentPage + 1, true);
     });
 
     // Listen for filter-applied event from CategoryFilter
     reviewsGrid.addEventListener('filter-applied', () => {
       reassignPages();
-      goToPage(1);
+      goToPage(1, false);
     });
 
     // Initialize
-    goToPage(1);
+    goToPage(1, false);
   });
 </script>
 
