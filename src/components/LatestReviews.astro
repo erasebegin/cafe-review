@@ -2,6 +2,7 @@
 import { getAllBlogPosts } from '../lib/sanity-utils';
 import ReviewCard from './ReviewCard.astro';
 import LocationDropdown from './LocationDropdown.astro';
+import CategoryFilter from './CategoryFilter.astro';
 
 const PER_PAGE = 6;
 let cafes: Awaited<ReturnType<typeof getAllBlogPosts>> = [];
@@ -25,17 +26,7 @@ const totalPages = Math.ceil(cafes.length / PER_PAGE);
       <LocationDropdown />
     </div>
     {cafes.length > 0 && (
-      <div class="best-for-section">
-        <h3 class="best-for-title">Best for...</h3>
-        <div class="filter-buttons">
-          <button class="filter-btn" data-sort="vegan">🌿 Vegan</button>
-          <button class="filter-btn" data-sort="glutenFree">🌾 Gluten Free</button>
-          <button class="filter-btn" data-sort="workability">💻 Workability</button>
-          <button class="filter-btn" data-sort="coffee">☕ Coffee</button>
-          <button class="filter-btn" data-sort="health">🥗 Health</button>
-          <button class="filter-btn" data-sort="pastries">🥐 Pastries</button>
-        </div>
-      </div>
+      <CategoryFilter reviewGridId="reviews-grid" theme="light" />
     )}
     {cafes.length > 0 ? (
       <>
@@ -93,15 +84,14 @@ const totalPages = Math.ceil(cafes.length / PER_PAGE);
     const reviewsGrid = document.getElementById('reviews-grid');
     if (!reviewsGrid) return;
 
-    const prevBtn = document.getElementById('prev-btn') as HTMLButtonElement;
-    const nextBtn = document.getElementById('next-btn') as HTMLButtonElement;
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
     const pageNumbers = document.getElementById('page-numbers');
-    const filterBtns = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
     let currentPage = 1;
     let totalPages = pagination ? parseInt(pagination.dataset.totalPages || '1') : 1;
 
     function reassignPages() {
-      const items = Array.from(reviewsGrid!.children) as HTMLElement[];
+      const items = Array.from(reviewsGrid.children);
       items.forEach((item, i) => {
         item.dataset.page = String(Math.floor(i / PER_PAGE) + 1);
       });
@@ -120,9 +110,9 @@ const totalPages = Math.ceil(cafes.length / PER_PAGE);
       }
     }
 
-    function goToPage(page: number) {
+    function goToPage(page) {
       currentPage = page;
-      const items = reviewsGrid!.querySelectorAll<HTMLElement>('.review-item');
+      const items = reviewsGrid.querySelectorAll('.review-item');
       items.forEach(item => {
         item.classList.toggle('visible', item.dataset.page === String(currentPage));
       });
@@ -144,47 +134,10 @@ const totalPages = Math.ceil(cafes.length / PER_PAGE);
       if (currentPage < totalPages) goToPage(currentPage + 1);
     });
 
-    const attrMap: Record<string, string> = {
-      vegan: 'vegan',
-      glutenFree: 'glutenFree',
-      workability: 'workability',
-      coffee: 'coffee',
-      health: 'health',
-      pastries: 'pastries',
-    };
-
-    function applyFilters() {
-      const activeFilters = Array.from(filterBtns)
-        .filter(b => b.classList.contains('active'))
-        .map(b => attrMap[b.dataset.sort || ''])
-        .filter(Boolean);
-
-      const items = Array.from(reviewsGrid!.children) as HTMLElement[];
-
-      if (activeFilters.length === 0) {
-        // Revert to newest
-        items.sort((a, b) => {
-          return parseFloat(b.dataset.date || '0') - parseFloat(a.dataset.date || '0');
-        });
-      } else {
-        items.sort((a, b) => {
-          const avgScore = (el: HTMLElement) =>
-            activeFilters.reduce((sum, attr) => sum + parseFloat(el.dataset[attr] || '0'), 0) / activeFilters.length;
-          return avgScore(b) - avgScore(a);
-        });
-      }
-
-      items.forEach(item => reviewsGrid!.appendChild(item));
+    // Listen for filter-applied event from CategoryFilter
+    reviewsGrid.addEventListener('filter-applied', () => {
       reassignPages();
       goToPage(1);
-    }
-
-    // Filter button sorting
-    filterBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        btn.classList.toggle('active');
-        applyFilters();
-      });
     });
 
     // Initialize
@@ -221,52 +174,6 @@ const totalPages = Math.ceil(cafes.length / PER_PAGE);
     margin-bottom: 1.5rem;
     display: flex;
     justify-content: center;
-  }
-
-  .best-for-section {
-    text-align: center;
-    margin-bottom: 2.5rem;
-  }
-
-  .best-for-title {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: white;
-    margin: 0 0 1rem 0;
-    text-shadow: 1px 2px 4px rgba(0, 0, 0, 0.15);
-  }
-
-  .filter-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.6rem;
-  }
-
-  .filter-btn {
-    padding: 0.5rem 1.1rem;
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    border-radius: 50px;
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    font-size: 0.95rem;
-    color: white;
-    cursor: pointer;
-    transition: all 0.25s ease;
-    font-weight: 500;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
-  }
-
-  .filter-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
-    border-color: rgba(255, 255, 255, 0.6);
-  }
-
-  .filter-btn.active {
-    background: rgba(255, 255, 255, 0.45);
-    border-color: rgba(255, 255, 255, 0.6);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
 
   .reviews-grid {

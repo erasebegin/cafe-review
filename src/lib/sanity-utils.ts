@@ -12,7 +12,7 @@ function transformCafeToBlogPost(cafe: SanityCafe): BlogPost {
     seoDescription: cafe.seoDescription,
     pubDate: new Date(cafe._createdAt),
     updatedDate: cafe._updatedAt ? new Date(cafe._updatedAt) : undefined,
-    heroImage: cafe.featuredImage ? urlFor(cafe.featuredImage).width(1200).height(630).auto('format').url() : undefined,
+    heroImage: cafe.featuredImage && cafe.featuredImage.asset ? urlFor(cafe.featuredImage).width(1200).height(630).auto('format').url() : undefined,
     content: cafe.reviewBody || [],
     rating: cafe.coffeeCraftsmanshipRating, // Using coffee craftsmanship as main rating
     location: cafe.location ? {
@@ -39,7 +39,7 @@ function transformCafeToBlogPost(cafe: SanityCafe): BlogPost {
     website: cafe.instagram || cafe.facebook,
     openingHours: cafe.openingHours,
     geo: cafe.geoLocation,
-    images: cafe.gallery?.map(img => urlFor(img).width(800).height(600).auto('format').url()) || []
+    images: cafe.gallery?.filter(img => img && img.asset).map(img => urlFor(img).width(800).height(600).auto('format').url()) || []
   }
 }
 

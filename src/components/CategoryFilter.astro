@@ -1,0 +1,189 @@
+---
+import { Leaf, Wheat, Laptop, Coffee, Salad, Croissant } from 'lucide-astro';
+
+export interface Props {
+  reviewGridId?: string;
+  theme?: 'light' | 'dark';
+}
+
+const { reviewGridId = 'reviews-grid', theme = 'light' } = Astro.props;
+
+const categories = [
+  { key: 'vegan', icon: Leaf, label: 'Vegan' },
+  { key: 'glutenFree', icon: Wheat, label: 'Gluten Free' },
+  { key: 'workability', icon: Laptop, label: 'Workability' },
+  { key: 'coffee', icon: Coffee, label: 'Coffee' },
+  { key: 'health', icon: Salad, label: 'Health' },
+  { key: 'pastries', icon: Croissant, label: 'Pastries' },
+] as const;
+---
+
+<div class="best-for-section" data-theme={theme}>
+  <h3 class="best-for-title">Best for...</h3>
+  <div class="filter-buttons" id="category-filter-buttons">
+    {
+      categories.map(({ key, icon: Icon, label }) => (
+        <button class="filter-btn" data-sort={key}>
+          <Icon size={16} />
+          <span>{label}</span>
+        </button>
+      ))
+    }
+  </div>
+</div>
+
+<script define:vars={{ gridId: reviewGridId }}>
+  (function() {
+    var attrMap = {
+      vegan: 'vegan',
+      glutenFree: 'glutenFree',
+      workability: 'workability',
+      coffee: 'coffee',
+      health: 'health',
+      pastries: 'pastries',
+    };
+
+    function clearHighlights() {
+      var els = document.querySelectorAll('.rating-item.highlighted');
+      for (var i = 0; i < els.length; i++) {
+        els[i].classList.remove('highlighted');
+      }
+    }
+
+    function init() {
+      var filterContainer = document.getElementById('category-filter-buttons');
+      var reviewsGrid = document.getElementById(gridId);
+
+      if (!filterContainer || !reviewsGrid) {
+        return;
+      }
+
+      var filterBtns = filterContainer.querySelectorAll('.filter-btn');
+
+      function applyFilters() {
+        var active = [];
+        for (var i = 0; i < filterBtns.length; i++) {
+          if (filterBtns[i].classList.contains('active')) {
+            var key = attrMap[filterBtns[i].dataset.sort || ''];
+            if (key) active.push(key);
+          }
+        }
+
+        var items = Array.prototype.slice.call(reviewsGrid.children);
+        clearHighlights();
+
+        if (active.length === 0) {
+          // Revert to newest first
+          items.sort(function(a, b) {
+            return parseFloat(b.dataset.date || '0') - parseFloat(a.dataset.date || '0');
+          });
+        } else {
+          items.sort(function(a, b) {
+            var sum = function(el, attrs) {
+              var total = 0;
+              for (var i = 0; i < attrs.length; i++) {
+                total += parseFloat(el.dataset[attrs[i]] || '0');
+              }
+              return total / attrs.length;
+            };
+            return sum(b, active) - sum(a, active);
+          });
+
+          // Highlight matching ratings on visible items
+          for (var i = 0; i < items.length; i++) {
+            if (items[i].style.display === 'none') continue;
+            for (var j = 0; j < active.length; j++) {
+              var ratingEl = items[i].querySelector('.rating-item[data-category="' + active[j] + '"]');
+              if (ratingEl) ratingEl.classList.add('highlighted');
+            }
+          }
+        }
+
+        for (var i = 0; i < items.length; i++) {
+          reviewsGrid.appendChild(items[i]);
+        }
+
+        // Dispatch event so parent components (pagination, etc.) can react
+        reviewsGrid.dispatchEvent(new CustomEvent('filter-applied', {
+          bubbles: true,
+          detail: { activeFilters: active, itemCount: items.length }
+        }));
+      }
+
+      for (var i = 0; i < filterBtns.length; i++) {
+        filterBtns[i].addEventListener('click', function() {
+          this.classList.toggle('active');
+          applyFilters();
+        });
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
+</script>
+
+<style>
+  .best-for-section {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .best-for-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+  }
+
+  .best-for-section[data-theme='light'] .best-for-title {
+    color: #333;
+  }
+
+  .best-for-section[data-theme='dark'] .best-for-title {
+    color: white;
+    text-shadow: 1px 2px 4px rgba(0, 0, 0, 0.15);
+  }
+
+  .filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem;
+  }
+
+  .filter-btn {
+    padding: 0.5rem 1.1rem;
+    border: 2px solid #ddd;
+    border-radius: 50px;
+    background: white;
+    font-size: 0.95rem;
+    color: #555;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .filter-btn:hover {
+    border-color: #ff6b35;
+    color: #ff6b35;
+  }
+
+  .filter-btn.active {
+    background: #ff6b35;
+    border-color: #ff6b35;
+    color: white;
+  }
+
+  @media (max-width: 768px) {
+    .filter-btn {
+      font-size: 0.9rem;
+      padding: 0.45rem 0.95rem;
+    }
+  }
+</style>

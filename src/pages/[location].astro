@@ -4,7 +4,7 @@ import Footer from '../components/Footer.astro';
 import Hero from '../components/Hero.astro';
 import PostHogLayout from '../layouts/PostHogLayout.astro';
 import ReviewCard from '../components/ReviewCard.astro';
-import { Leaf, Wheat, Laptop, Coffee, Salad, Croissant } from 'lucide-astro';
+import CategoryFilter from '../components/CategoryFilter.astro';
 import { getAllLocations, getAllBlogPosts, getSiteConfig } from '../lib/sanity-utils';
 import { urlFor } from '../lib/sanity';
 import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL } from '../consts';
@@ -72,14 +72,14 @@ const collectionJsonLd = {
     itemListElement: locationCafes.map((cafe, idx) => ({
       '@type': 'ListItem',
       position: idx + 1,
-      url: `${SITE_URL}/blog/${cafe.slug}`,
+      url: `${SITE_URL}/blog/${cafe.slug}/`,
       name: cafe.title,
     })),
   },
 };
 
 // Get all banner images from bannerImages array
-const bannerImageUrls = location.bannerImages?.map(image => 
+const bannerImageUrls = location.bannerImages?.filter(img => img && img.asset).map(image => 
   urlFor(image).width(1920).height(1080).url()
 ) || [];
 ---
@@ -105,17 +105,7 @@ const bannerImageUrls = location.bannerImages?.map(image =>
           )}
           
           {locationCafes.length > 0 && (
-            <div class="best-for-section">
-              <h3 class="best-for-title">Best for...</h3>
-              <div class="filter-buttons">
-                <button class="filter-btn" data-sort="vegan"><Leaf size={16} /> Vegan</button>
-                <button class="filter-btn" data-sort="glutenFree"><Wheat size={16} /> Gluten Free</button>
-                <button class="filter-btn" data-sort="workability"><Laptop size={16} /> Workability</button>
-                <button class="filter-btn" data-sort="coffee"><Coffee size={16} /> Coffee</button>
-                <button class="filter-btn" data-sort="health"><Salad size={16} /> Health</button>
-                <button class="filter-btn" data-sort="pastries"><Croissant size={16} /> Pastries</button>
-              </div>
-            </div>
+            <CategoryFilter reviewGridId="reviews-grid" theme="light" />
           )}
 
           {locationCafes.length > 0 ? (
@@ -158,75 +148,6 @@ const bannerImageUrls = location.bannerImages?.map(image =>
       </section>
     </main>
     <Footer />
-    
-    <script>
-      const filterBtns = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
-      const reviewsGrid = document.getElementById('reviews-grid');
-
-      const categoryMap: Record<string, string> = {
-        vegan: 'vegan',
-        glutenFree: 'glutenFree',
-        workability: 'workability',
-        coffee: 'coffee',
-        health: 'health',
-        pastries: 'pastries',
-      };
-
-      function clearHighlights() {
-        document.querySelectorAll('.rating-item.highlighted').forEach(el => el.classList.remove('highlighted'));
-      }
-
-      if (filterBtns.length && reviewsGrid) {
-        filterBtns.forEach(btn => {
-          btn.addEventListener('click', () => {
-            const wasActive = btn.classList.contains('active');
-            filterBtns.forEach(b => b.classList.remove('active'));
-            clearHighlights();
-
-            const items = Array.from(reviewsGrid.children) as HTMLElement[];
-
-            if (wasActive) {
-              // Deselect: show all, revert to newest
-              items.forEach(item => {
-                (item as HTMLElement).style.display = '';
-              });
-              items.sort((a, b) => {
-                const aVal = parseFloat(a.dataset.date || '0');
-                const bVal = parseFloat(b.dataset.date || '0');
-                return bVal - aVal;
-              });
-              items.forEach(item => reviewsGrid.appendChild(item));
-              return;
-            }
-            btn.classList.add('active');
-
-            const sortBy = btn.dataset.sort;
-            const dataAttr = categoryMap[sortBy || ''] || 'date';
-
-            // Hide items without a rating for this category, show the rest
-            items.forEach(item => {
-              const val = parseFloat(item.dataset[dataAttr] || '0');
-              (item as HTMLElement).style.display = val > 0 ? '' : 'none';
-            });
-
-            // Sort visible items by the selected rating (descending)
-            const visible = items.filter(item => (item as HTMLElement).style.display !== 'none');
-            visible.sort((a, b) => {
-              const aVal = parseFloat(a.dataset[dataAttr] || '0');
-              const bVal = parseFloat(b.dataset[dataAttr] || '0');
-              return bVal - aVal;
-            });
-            visible.forEach(item => reviewsGrid.appendChild(item));
-
-            // Highlight the matching rating on visible cards
-            visible.forEach(item => {
-              const ratingEl = item.querySelector(`.rating-item[data-category="${sortBy}"]`);
-              if (ratingEl) ratingEl.classList.add('highlighted');
-            });
-          });
-        });
-      }
-    </script>
   </body>
 </html>
 </PostHogLayout>
@@ -255,67 +176,14 @@ const bannerImageUrls = location.bannerImages?.map(image =>
     margin-bottom: 2rem;
   }
 
-  .best-for-section {
-    text-align: center;
-    margin-bottom: 2.5rem;
-  }
-
-  .best-for-title {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: #333;
-    margin: 0 0 1rem 0;
-  }
-
-  .filter-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.6rem;
-  }
-
-  .filter-btn {
-    padding: 0.5rem 1.1rem;
-    border: 2px solid #ddd;
-    border-radius: 50px;
-    background: white;
-    font-size: 0.95rem;
-    color: #555;
-    cursor: pointer;
-    transition: all 0.25s ease;
-    font-weight: 500;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-  }
-
-  .filter-btn:hover {
-    border-color: #ff6b35;
-    color: #ff6b35;
-  }
-
-  .filter-btn.active {
-    background: #ff6b35;
-    border-color: #ff6b35;
-    color: white;
-  }
-
-  .section-header h2 {
-    font-size: 2.5rem;
-    color: #333;
-    margin: 0 0 1rem 0;
-    font-weight: 700;
-  }
-
   .location-description {
     font-size: 1.1rem;
     color: #666;
-    margin: 0 0 1rem 0;
+    margin: 0;
     max-width: 800px;
     margin-left: auto;
     margin-right: auto;
   }
-
 
   .reviews-grid {
     display: flex;
