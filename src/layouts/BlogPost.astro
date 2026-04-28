@@ -28,7 +28,7 @@ const metaTitle = post?.seoTitle || (post?.location?.cityName
 	? `${title} — ${post.location.cityName} Cafe Review`
 	: `${title} | ${SITE_TITLE}`);
 const metaDescription = post?.seoDescription || description;
-const pageUrl = post ? `${SITE_URL}/blog/${post.slug}` : SITE_URL;
+const pageUrl = post ? `${SITE_URL}/cafe/${post.slug}/` : SITE_URL;
 
 // Compute an aggregate rating from the per-category 1–5 ratings (when present)
 // for the Review schema. Schema.org `Rating.bestRating: 5`, `worstRating: 1`.
