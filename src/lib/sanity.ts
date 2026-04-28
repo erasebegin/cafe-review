@@ -23,7 +23,7 @@ export function urlFor(source: any) {
 }
 
 // GROQ queries for cafe content (adapted for blog-like usage)
-export const cafesQuery = `*[_type == "cafe"] | order(_createdAt desc) {
+export const cafesQuery = `*[_type == "cafe"] | order(_updatedAt desc) {
   _id,
   title,
   slug,

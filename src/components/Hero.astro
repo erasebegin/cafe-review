@@ -63,7 +63,7 @@ try {
           <div class="latest-cafes-grid">
             {featuredCafes.map((cafe) => (
               <a
-                href={`/blog/${cafe.slug}/`}
+                href={`/cafe/${cafe.slug}/`}
                 class="latest-cafe-card"
                 aria-label={cafe.location?.cityName ? `Read review of ${cafe.title} in ${cafe.location.cityName}` : `Read review of ${cafe.title}`}
               >

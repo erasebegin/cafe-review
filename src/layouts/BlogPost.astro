@@ -20,6 +20,9 @@ type Props = {
 
 const { title, description, pubDate, updatedDate, heroImage, post, showLastUpdated = true, contentOverlay = false } = Astro.props;
 
+// Carousel images: heroImage + any additional images from the post
+const carouselImages = Array.from(new Set([heroImage, ...(post?.images || [])].filter(Boolean))) as string[];
+
 // Compose page-level SEO title with brand suffix.
 const metaTitle = post?.seoTitle || (post?.location?.cityName
 	? `${title} — ${post.location.cityName} Cafe Review`
@@ -251,6 +254,112 @@ const breadcrumbJsonLd = {
 			article.overlay-layout .prose.prose-glass :global(p:last-child) {
 				margin-bottom: 0;
 			}
+
+			/* Carousel */
+			.carousel-container {
+				position: relative;
+				width: 100%;
+				border-radius: 12px;
+				overflow: hidden;
+				box-shadow: var(--box-shadow);
+			}
+			.carousel-track {
+				display: flex;
+				width: 100%;
+				overflow-x: auto;
+				scroll-snap-type: x mandatory;
+				scrollbar-width: none;
+				-ms-overflow-style: none;
+				scroll-behavior: smooth;
+			}
+			.carousel-track::-webkit-scrollbar {
+				display: none;
+			}
+			.carousel-slide {
+				flex: 0 0 100%;
+				width: 100%;
+				scroll-snap-align: center;
+			}
+			.carousel-slide img {
+				display: block;
+				width: 100%;
+				height: 100%;
+				border-radius: 0;
+				box-shadow: none;
+				object-fit: cover;
+				aspect-ratio: 2 / 1;
+			}
+			.carousel-nav {
+				position: absolute;
+				top: 50%;
+				transform: translateY(-50%);
+				width: 44px;
+				height: 44px;
+				background: rgba(255, 255, 255, 0.25);
+				backdrop-filter: blur(8px);
+				-webkit-backdrop-filter: blur(8px);
+				border: 1px solid rgba(255, 255, 255, 0.4);
+				border-radius: 50%;
+				color: white;
+				cursor: pointer;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				transition: all 0.2s ease;
+				z-index: 10;
+				filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+			}
+			.carousel-nav:hover {
+				background: rgba(255, 255, 255, 0.4);
+			}
+			.carousel-nav.prev {
+				left: 1rem;
+			}
+			.carousel-nav.next {
+				right: 1rem;
+			}
+			.carousel-nav svg {
+				width: 28px;
+				height: 28px;
+			}
+			.carousel-dots {
+				position: absolute;
+				bottom: 6rem;
+				left: 0;
+				right: 0;
+				display: flex;
+				justify-content: center;
+				gap: 0.5rem;
+				z-index: 10;
+			}
+			.carousel-dots .dot {
+				width: 8px;
+				height: 8px;
+				border-radius: 50%;
+				background: rgba(255, 255, 255, 0.4);
+				border: none;
+				cursor: pointer;
+				padding: 0;
+				transition: all 0.2s ease;
+				box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+			}
+			.carousel-dots .dot.active {
+				background: white;
+				transform: scale(1.2);
+			}
+
+			@media (max-width: 720px) {
+				.hero-image {
+					margin: 0 auto;
+				}
+				.hero-image img {
+					aspect-ratio: 1 / 1;
+					object-fit: cover;
+				}
+				.carousel-slide img {
+					aspect-ratio: 1 / 1;
+				}
+			}
 		</style>
 	</head>
 
@@ -258,7 +367,37 @@ const breadcrumbJsonLd = {
 		<main>
 			<article class:list={[{ 'overlay-layout': contentOverlay }]}>
 				<div class:list={['hero-image', { 'overlay-mode': contentOverlay }]}>
-					{heroImage && !contentOverlay && (
+					{heroImage && !contentOverlay && carouselImages.length > 1 && (
+						<div class="carousel-container" data-blog-carousel>
+							<div class="carousel-track" data-blog-track>
+								{carouselImages.map((src, idx) => (
+									<div class="carousel-slide">
+										<img
+											src={src}
+											alt={`${title} - image ${idx + 1}`}
+											width="1020"
+											height="510"
+											loading={idx === 0 ? "eager" : "lazy"}
+											fetchpriority={idx === 0 ? "high" : "auto"}
+											decoding={idx === 0 ? "sync" : "async"}
+										/>
+									</div>
+								))}
+							</div>
+							<button type="button" class="carousel-nav prev" aria-label="Previous image" data-blog-prev>
+								<svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" fill="currentColor"/></svg>
+							</button>
+							<button type="button" class="carousel-nav next" aria-label="Next image" data-blog-next>
+								<svg viewBox="0 0 24 24"><path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z" fill="currentColor"/></svg>
+							</button>
+							<div class="carousel-dots">
+								{carouselImages.map((_, idx) => (
+									<button type="button" class={`dot ${idx === 0 ? 'active' : ''}`} aria-label={`Go to image ${idx + 1}`} data-index={idx}></button>
+								))}
+							</div>
+						</div>
+					)}
+					{heroImage && !contentOverlay && carouselImages.length === 1 && (
 						<img
 							src={heroImage}
 							alt={title}
@@ -296,5 +435,57 @@ const breadcrumbJsonLd = {
 			</article>
 		</main>
 		<Footer />
-	</body>
+	<script>
+		document.addEventListener('DOMContentLoaded', () => {
+			const track = document.querySelector('[data-blog-track]');
+			if (!track) return;
+
+			const slides = track.querySelectorAll('.carousel-slide');
+			const dots = document.querySelectorAll('.carousel-dots .dot');
+			const prevBtn = document.querySelector('[data-blog-prev]');
+			const nextBtn = document.querySelector('[data-blog-next]');
+
+			if (slides.length <= 1) return;
+
+			let currentIndex = 0;
+
+			function updateDots() {
+				dots.forEach((dot, idx) => {
+					dot.classList.toggle('active', idx === currentIndex);
+				});
+			}
+
+			function goToSlide(index) {
+				if (!slides[index]) return;
+				currentIndex = index;
+				slides[index].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+				updateDots();
+			}
+
+			prevBtn?.addEventListener('click', () => {
+				const targetIndex = (currentIndex - 1 + slides.length) % slides.length;
+				goToSlide(targetIndex);
+			});
+
+			nextBtn?.addEventListener('click', () => {
+				const targetIndex = (currentIndex + 1) % slides.length;
+				goToSlide(targetIndex);
+			});
+
+			dots.forEach((dot, index) => {
+				dot.addEventListener('click', () => goToSlide(index));
+			});
+
+			track.addEventListener('scroll', () => {
+				const scrollLeft = track.scrollLeft;
+				const slideWidth = track.clientWidth;
+				const newIndex = Math.round(scrollLeft / slideWidth);
+				if (newIndex !== currentIndex) {
+					currentIndex = newIndex;
+					updateDots();
+				}
+			}, { passive: true });
+		});
+	</script>
+</body>
 </html>

@@ -79,7 +79,7 @@ const pageDescription = 'Browse every cafe review and city on Cafe Review.';
 									<ul>
 										{group.cafes.map((cafe) => (
 											<li>
-												<a href={`/blog/${cafe.slug}/`}>{cafe.title}</a>
+												<a href={`/cafe/${cafe.slug}/`}>{cafe.title}</a>
 											</li>
 										))}
 									</ul>
@@ -96,7 +96,7 @@ const pageDescription = 'Browse every cafe review and city on Cafe Review.';
 					<ul>
 						{orphanCafes.map((cafe) => (
 							<li>
-								<a href={`/blog/${cafe.slug}/`}>{cafe.title}</a>
+								<a href={`/cafe/${cafe.slug}/`}>{cafe.title}</a>
 							</li>
 						))}
 					</ul>

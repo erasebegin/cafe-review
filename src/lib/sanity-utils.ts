@@ -10,7 +10,7 @@ function transformCafeToBlogPost(cafe: SanityCafe): BlogPost {
     description: cafe.description || `A review of ${cafe.title}`,
     seoTitle: cafe.seoTitle,
     seoDescription: cafe.seoDescription,
-    pubDate: new Date(cafe._createdAt),
+    pubDate: new Date(cafe._updatedAt || cafe._createdAt),
     updatedDate: cafe._updatedAt ? new Date(cafe._updatedAt) : undefined,
     heroImage: cafe.featuredImage && cafe.featuredImage.asset ? urlFor(cafe.featuredImage).width(1200).height(630).auto('format').url() : undefined,
     content: cafe.reviewBody || [],

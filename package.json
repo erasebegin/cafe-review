@@ -9,7 +9,8 @@
     "astro": "astro",
     "prebuild": "node scripts/generate-og.mjs",
     "generate:og": "node scripts/generate-og.mjs",
-    "sync-joplin": "tsx --env-file=.env scripts/joplin-to-sanity.ts"
+    "sync-joplin": "tsx --env-file=.env scripts/joplin-to-sanity.ts",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.8",
@@ -25,8 +26,10 @@
     "typescript": "^5.9.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@types/better-sqlite3": "^7.6.13",
     "better-sqlite3": "^12.8.0",
+    "playwright": "^1.59.1",
     "tsx": "^4.21.0"
   }
 }
