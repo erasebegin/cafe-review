@@ -48,7 +48,6 @@ export const cafesQuery = `*[_type == "cafe"] | order(_updatedAt desc) {
   coffeeCraftsmanshipRating,
   healthFocusRating,
   croissantRating,
-  vibe,
   food,
   drinks,
   facilities
@@ -85,7 +84,10 @@ export const cafeQuery = `*[_type == "cafe" && slug.current == $slug][0] {
   healthFocusComment,
   croissantRating,
   croissantComment,
-  vibe,
+  cakesAndPastriesRating,
+  cakesAndPastriesComment,
+  drinksRating,
+  drinksComment,
   food,
   drinks,
   facilities,
@@ -96,7 +98,64 @@ export const cafeQuery = `*[_type == "cafe" && slug.current == $slug][0] {
   openingHours,
   email,
   instagram,
-  facebook
+  facebook,
+  specialty,
+  visits,
+  atmosphere {
+    lighting,
+    noiseLevel,
+    music {
+      volume,
+      genre,
+      notes
+    },
+    vibe,
+    vibeNotes,
+    interiorDescription,
+    indoorSeating,
+    outdoorSeating,
+    seatingTypes,
+    seatingComfort,
+    tableSize,
+    spaceNotes,
+    staff {
+      friendliness,
+      professionalism,
+      attentiveness,
+      notes
+    }
+  },
+  workingFacilities {
+    wifi {
+      available,
+      speedMbps,
+      captivePortal,
+      notes
+    },
+    plugSockets {
+      availability,
+      notes
+    },
+    laptopPolicy {
+      allowed,
+      notes
+    },
+    laptopFriendlyHeight
+  },
+  toilets {
+    available,
+    cleanliness,
+    acoustics,
+    notes
+  },
+  menuNotes,
+  itemsTried[] {
+    name,
+    category,
+    rating,
+    priceEur,
+    notes
+  }
 }`
 
 export const siteConfigQuery = `*[_type == "siteConfig"][0] {

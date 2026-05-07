@@ -30,16 +30,38 @@ function transformCafeToBlogPost(cafe: SanityCafe): BlogPost {
     coffeeCraftsmanshipComment: cafe.coffeeCraftsmanshipComment,
     healthFocus: cafe.healthFocusRating,
     healthFocusComment: cafe.healthFocusComment,
-    pastries: cafe.croissantRating,
+    croissant: cafe.croissantRating,
     croissantComment: cafe.croissantComment,
+    cakesAndPastries: cafe.cakesAndPastriesRating,
+    cakesAndPastriesComment: cafe.cakesAndPastriesComment,
+    drinks: cafe.drinksRating,
+    drinksComment: cafe.drinksComment,
+    // Multi-select tags
+    food: cafe.food,
+    drinksTags: cafe.drinks,
+    facilities: cafe.facilities,
+    // Atmosphere
+    atmosphere: cafe.atmosphere,
+    toilets: cafe.toilets,
+    // Style keywords extracted from review body
+    styleKeywords: extractStyleKeywords(cafe.reviewBody),
+    // Working facilities
+    workingFacilities: cafe.workingFacilities,
+    // Menu
+    menuNotes: cafe.menuNotes,
+    itemsTried: cafe.itemsTried,
+    // Contact
     address: cafe.address,
     // Schema field is `phoneNumber` (see schema.ts) but legacy code reads `cafe.phone`.
     // Accept either to avoid breaking existing data.
     phone: cafe.phone || cafe.phoneNumber,
+    email: cafe.email,
     website: cafe.instagram || cafe.facebook,
     openingHours: cafe.openingHours,
     geo: cafe.geoLocation,
-    images: cafe.gallery?.filter(img => img && img.asset).map(img => urlFor(img).width(800).height(600).auto('format').url()) || []
+    images: cafe.gallery?.filter(img => img && img.asset).map(img => urlFor(img).width(800).height(600).auto('format').url()) || [],
+    specialty: cafe.specialty,
+    visits: cafe.visits
   }
 }
 
@@ -63,6 +85,30 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
     console.error(`Error fetching cafe with slug "${slug}" from Sanity:`, error)
     return null
   }
+}
+
+// Extract style-related keywords from portable text review body
+export function extractStyleKeywords(blocks: any[] | undefined): string[] {
+  if (!blocks) return [];
+  const text = blocks
+    .filter((b: any) => b._type === 'block')
+    .flatMap((b: any) => (b.children || []).filter((c: any) => c._type === 'span'))
+    .map((c: any) => c.text)
+    .join(' ')
+    .toLowerCase();
+  
+  const keywords = [
+    'airy', 'artistic', 'bohemian', 'bright', 'casual', 'charming',
+    'clean', 'cluttered', 'contemporary', 'cosy', 'cozy', 'cramped',
+    'dark', 'dim', 'eclectic', 'elegant', 'exposed brick', 'formal',
+    'grand', 'green', 'homely', 'industrial', 'intimate', 'laid-back',
+    'lively', 'minimal', 'minimalist', 'modern', 'natural', 'ornate',
+    'plant-filled', 'plush', 'quirky', 'relaxed', 'retro', 'rustic',
+    'scandinavian', 'simple', 'sleek', 'sophisticated', 'spacious',
+    'traditional', 'vintage', 'warm', 'wooden'
+  ];
+  
+  return keywords.filter(kw => text.includes(kw));
 }
 
 // Get all cafe slugs (useful for static path generation)

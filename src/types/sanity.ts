@@ -39,6 +39,77 @@ export interface SanityLocation {
   featuredImages?: SanityImage[]
 }
 
+// Atmosphere sub-types
+export interface SanityMusic {
+  volume?: 'none' | 'quiet' | 'moderate' | 'loud'
+  genre?: string
+  notes?: string
+}
+
+export interface SanityStaff {
+  friendliness?: number
+  professionalism?: number
+  attentiveness?: number
+  notes?: string
+}
+
+export interface SanityToilets {
+  available?: boolean
+  cleanliness?: number
+  acoustics?: string
+  notes?: string
+}
+
+export interface SanityAtmosphere {
+  lighting?: 'bright' | 'dim' | 'natural' | 'mixed'
+  noiseLevel?: 'silent' | 'quiet' | 'moderate' | 'lively' | 'loud'
+  music?: SanityMusic
+  vibe?: string[]
+  vibeNotes?: string
+  interiorDescription?: string
+  indoorSeating?: number
+  outdoorSeating?: number
+  seatingTypes?: string[]
+  seatingComfort?: number
+  tableSize?: 'small' | 'medium' | 'large' | 'mixed'
+  spaceNotes?: string
+  staff?: SanityStaff
+}
+
+// Working facilities sub-types
+export interface SanityWifi {
+  available?: boolean
+  speedMbps?: number
+  captivePortal?: boolean
+  notes?: string
+}
+
+export interface SanityPlugSockets {
+  availability?: 'none' | 'few' | 'some' | 'plenty'
+  notes?: string
+}
+
+export interface SanityLaptopPolicy {
+  allowed?: 'yes' | 'no' | 'restricted' | 'unclear'
+  notes?: string
+}
+
+export interface SanityWorkingFacilities {
+  wifi?: SanityWifi
+  plugSockets?: SanityPlugSockets
+  laptopPolicy?: SanityLaptopPolicy
+  laptopFriendlyHeight?: boolean
+}
+
+// Menu sub-types
+export interface SanityItemTried {
+  name: string
+  category: 'drink' | 'food'
+  rating?: number
+  priceEur?: number
+  notes?: string
+}
+
 // Cafe document (based on cafe.ts schema)
 export interface SanityCafe {
   _id: string
@@ -68,11 +139,23 @@ export interface SanityCafe {
   healthFocusComment?: string
   croissantRating?: number
   croissantComment?: string
+  cakesAndPastriesRating?: number
+  cakesAndPastriesComment?: string
+  drinksRating?: number
+  drinksComment?: string
   // Multi-select arrays
-  vibe?: string[]
   food?: string[]
   drinks?: string[]
   facilities?: string[]
+  // Atmosphere
+  atmosphere?: SanityAtmosphere
+  // Working facilities
+  workingFacilities?: SanityWorkingFacilities
+  // Toilets
+  toilets?: SanityToilets
+  // Menu
+  menuNotes?: string
+  itemsTried?: SanityItemTried[]
   // Location & contact
   geoLocation?: { lat: number; lng: number }
   address?: string
@@ -82,6 +165,8 @@ export interface SanityCafe {
   instagram?: string
   facebook?: string
   openingHours?: string[]
+  specialty?: string
+  visits?: number
 }
 
 // Site configuration
@@ -128,12 +213,35 @@ export interface BlogPost {
   coffeeCraftsmanshipComment?: string
   healthFocus?: number
   healthFocusComment?: string
-  pastries?: number
+  croissant?: number
   croissantComment?: string
+  cakesAndPastries?: number
+  cakesAndPastriesComment?: string
+  drinks?: number
+  drinksComment?: string
+  // Multi-select tags
+  food?: string[]
+  drinksTags?: string[]
+  facilities?: string[]
+  // Atmosphere
+  atmosphere?: SanityAtmosphere
+  // Working facilities
+  workingFacilities?: SanityWorkingFacilities
+  // Toilets
+  toilets?: SanityToilets
+  // Style keywords extracted from review body
+  styleKeywords?: string[]
+  // Menu
+  menuNotes?: string
+  itemsTried?: SanityItemTried[]
+  // Contact
   address?: string
   phone?: string
+  email?: string
   website?: string
   openingHours?: string[]
   geo?: { lat: number; lng: number }
   images?: string[]
+  specialty?: string
+  visits?: number
 }

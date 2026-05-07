@@ -4,7 +4,7 @@ import PostHogLayout from '../../layouts/PostHogLayout.astro';
 import RatingsChart from '../../components/RatingsChart.astro';
 import { getAllBlogSlugs, getBlogPostBySlug } from '../../lib/sanity-utils';
 import { toHTML } from '@portabletext/to-html';
-import { Leaf, Wheat, Laptop, Coffee, Salad, Croissant, MapPin, Phone, Mail, Instagram, Facebook } from 'lucide-astro';
+import { Leaf, Wheat, Laptop, Coffee, Salad, Croissant, MapPin, Phone, Mail, Instagram, Facebook, CakeSlice, CupSoda, Tag, ChefHat, Sparkles, Waves, Wifi, Plug, Monitor, Clock } from 'lucide-astro';
 
 export async function getStaticPaths() {
 	const slugs = await getAllBlogSlugs();
@@ -24,8 +24,57 @@ if (!post) {
 	return Astro.redirect('/404');
 }
 
-// Convert Portable Text to HTML
 const contentHtml = post.content ? toHTML(post.content) : '';
+
+const vibeLabelMap: Record<string, string> = {
+	'arabic': 'Arabic', 'bohemian': 'Bohemian', 'bright': 'Bright', 'bustling': 'Bustling',
+	'business': 'Business', 'calm': 'Calm', 'chain-like': 'Chain-like', 'charming': 'Charming',
+	'cheesy': 'Cheesy', 'classy': 'Classy', 'cold': 'Cold', 'contemporary': 'Contemporary',
+	'corporate': 'Corporate', 'cosy': 'Cosy', 'counter-culture': 'Counter-culture', 'cramped': 'Cramped',
+	'decadent': 'Decadent', 'drab': 'Drab', 'formal': 'Formal', 'generic': 'Generic',
+	'heartwarming': 'Heartwarming', 'hip': 'Hip', 'hipster': 'Hipster', 'homely': 'Homely',
+	'industrial': 'Industrial', 'inoffensive': 'Inoffensive', 'intellectual': 'Intellectual',
+	'international': 'International', 'jazz-lounge': 'Jazz-lounge', 'laid-back': 'Laid-back',
+	'living-room': 'Living-room', 'low-key': 'Low-key', 'messy': 'Messy', 'minimal': 'Minimal',
+	'modern': 'Modern', 'natural': 'Natural', 'neutral': 'Neutral', 'novel': 'Novel',
+	'opulent': 'Opulent', 'plush': 'Plush', 'post-modern': 'Post-modern', 'quaint': 'Quaint',
+	'quirky': 'Quirky', 'quiet': 'Quiet', 'radiant': 'Radiant', 'relaxed': 'Relaxed',
+	'restaurant-like': 'Restaurant-like', 'scandinavian-minimalism': 'Scandinavian', 'smoky': 'Smoky',
+	'soulless': 'Soulless', 'spacious': 'Spacious', 'suburban': 'Suburban', 'tasteful': 'Tasteful',
+	'turkish': 'Turkish', 'warm': 'Warm'
+};
+
+const foodLabelMap: Record<string, string> = {
+	'pastries': 'Pastries', 'breakfast': 'Breakfast', 'brunch': 'Brunch', 'dinner': 'Dinner'
+};
+
+const drinksLabelMap: Record<string, string> = {
+	'smoothies': 'Smoothies', 'coffee': 'Coffee', 'milkshakes': 'Milkshakes', 'tea': 'Tea'
+};
+
+const facilitiesLabelMap: Record<string, string> = {
+	'toilets': 'Toilets', 'wifi': 'WiFi', 'plug_sockets': 'Plug Sockets'
+};
+
+const hasAtmosphere = post.atmosphere && (
+	post.atmosphere.seatingComfort || post.atmosphere.seatingTypes?.length ||
+	post.atmosphere.tableSize || post.atmosphere.indoorSeating || post.atmosphere.outdoorSeating ||
+	post.atmosphere.spaceNotes || post.atmosphere.lighting || post.atmosphere.noiseLevel ||
+	post.atmosphere.music || post.atmosphere.interiorDescription ||
+	post.styleKeywords?.length
+);
+
+const hasInterior = post.atmosphere?.interiorDescription;
+
+const hasRatingComments = post.veganComment || post.glutenFreeComment || post.workabilityComment ||
+	post.coffeeCraftsmanshipComment || post.healthFocusComment || post.croissantComment ||
+	post.cakesAndPastriesComment || post.drinksComment;
+
+const hasWorkabilityFacilities = post.workingFacilities && (
+	post.workingFacilities.wifi || post.workingFacilities.plugSockets || post.workingFacilities.laptopPolicy
+);
+
+const hasWorkabilityContent = post.workability || hasWorkabilityFacilities;
 ---
 
 <PostHogLayout>
@@ -38,22 +87,118 @@ const contentHtml = post.content ? toHTML(post.content) : '';
 	post={post}
 >
 	<div class="review-content">
-		{/* Ratings Section */}
 		<RatingsChart post={post} />
 
-		{/* Review Body */}
+		{(post.atmosphere?.vibe?.length || post.food?.length || post.drinksTags?.length || post.facilities?.length) && (
+			<section class="tag-section">
+				{post.atmosphere?.vibe && post.atmosphere.vibe.length > 0 && (
+					<div class="tag-group">
+						<div class="tag-group-label"><Waves size={16} /> Vibe</div>
+						<div class="tag-chips">
+							{post.atmosphere.vibe.map(v => (
+								<span class="tag-chip vibe-chip">{vibeLabelMap[v] || v}</span>
+							))}
+						</div>
+					</div>
+				)}
+				{post.specialty && (
+					<div class="tag-group">
+						<div class="tag-group-label"><Sparkles size={16} /> Specialty</div>
+						<div class="tag-chips">
+							<span class="tag-chip vibe-chip">{post.specialty}</span>
+						</div>
+					</div>
+				)}
+				{post.food && post.food.length > 0 && (
+					<div class="tag-group">
+						<div class="tag-group-label"><ChefHat size={16} /> Food</div>
+						<div class="tag-chips">
+							{post.food.map(f => (
+								<span class="tag-chip food-chip">{foodLabelMap[f] || f}</span>
+							))}
+						</div>
+					</div>
+				)}
+				{post.drinksTags && post.drinksTags.length > 0 && (
+					<div class="tag-group">
+						<div class="tag-group-label"><CupSoda size={16} /> Drinks</div>
+						<div class="tag-chips">
+							{post.drinksTags.map(d => (
+								<span class="tag-chip drinks-chip">{drinksLabelMap[d] || d}</span>
+							))}
+						</div>
+					</div>
+				)}
+				{post.facilities && post.facilities.length > 0 && (
+					<div class="tag-group">
+						<div class="tag-group-label"><Tag size={16} /> Facilities</div>
+						<div class="tag-chips">
+							{post.facilities.map(f => (
+								<span class="tag-chip facilities-chip">{facilitiesLabelMap[f] || f}</span>
+							))}
+						</div>
+					</div>
+				)}
+			</section>
+		)}
+
 		{contentHtml && (
 			<section class="review-body">
 				<div set:html={contentHtml} />
 			</section>
 		)}
 
-		{/* Rating Details - Show sections for ratings with comments */}
-		{(post.veganComment || post.glutenFreeComment || post.workabilityComment || 
-		  post.coffeeCraftsmanshipComment || post.healthFocusComment || post.croissantComment) && (
+		{hasRatingComments && (
 			<section class="rating-details">
 				<h2>Rating Details</h2>
 				
+				{hasWorkabilityContent && (
+					<div id="rating-workability" class="rating-detail">
+						<div class="rating-detail-header">
+							<Laptop size={24} />
+							<h3>Workability</h3>
+							{post.workability && <span class="detail-score">{post.workability}/5</span>}
+						</div>
+						{post.workabilityComment && <p class="rating-detail-text">{post.workabilityComment}</p>}
+						{hasWorkabilityFacilities && (
+							<div class="workability-facilities">
+								{post.workingFacilities!.wifi && (
+									<div class="facility-item">
+										<h4><Wifi size={16} /> WiFi</h4>
+										<div class="facility-details">
+											{post.workingFacilities!.wifi.available != null && (
+												<span>{post.workingFacilities!.wifi.available ? 'Available' : 'No WiFi'}</span>
+											)}
+											{post.workingFacilities!.wifi.speedMbps != null && (
+												<span>{post.workingFacilities!.wifi.speedMbps} Mbps</span>
+											)}
+											{post.workingFacilities!.wifi.captivePortal != null && (
+												<span>{post.workingFacilities!.wifi.captivePortal ? 'Captive portal' : 'No captive portal'}</span>
+											)}
+										</div>
+									</div>
+								)}
+								{post.workingFacilities!.plugSockets && (
+									<div class="facility-item">
+										<h4><Plug size={16} /> Plug Sockets</h4>
+										<div class="facility-details">
+											<span>{post.workingFacilities!.plugSockets.availability}</span>
+										</div>
+									</div>
+								)}
+								{post.workingFacilities!.laptopPolicy && (
+									<div class="facility-item">
+										<h4><Monitor size={16} /> Laptop Policy</h4>
+										<div class="facility-details">
+											<span>{post.workingFacilities!.laptopPolicy.allowed}</span>
+										</div>
+									</div>
+								)}
+							</div>
+						)}
+					</div>
+				)}
+
 				{post.veganOptions && post.veganComment && (
 					<div id="rating-vegan" class="rating-detail">
 						<div class="rating-detail-header">
@@ -73,17 +218,6 @@ const contentHtml = post.content ? toHTML(post.content) : '';
 							<span class="detail-score">{post.glutenFree}/5</span>
 						</div>
 						<p class="rating-detail-text">{post.glutenFreeComment}</p>
-					</div>
-				)}
-
-				{post.workability && post.workabilityComment && (
-					<div id="rating-workability" class="rating-detail">
-						<div class="rating-detail-header">
-							<Laptop size={24} />
-							<h3>Workability</h3>
-							<span class="detail-score">{post.workability}/5</span>
-						</div>
-						<p class="rating-detail-text">{post.workabilityComment}</p>
 					</div>
 				)}
 
@@ -109,23 +243,158 @@ const contentHtml = post.content ? toHTML(post.content) : '';
 					</div>
 				)}
 
-				{post.pastries && post.croissantComment && (
-					<div id="rating-pastries" class="rating-detail">
+				{post.croissant && post.croissantComment && (
+					<div id="rating-croissant" class="rating-detail">
 						<div class="rating-detail-header">
 							<Croissant size={24} />
-							<h3>Pastries</h3>
-							<span class="detail-score">{post.pastries}/5</span>
+							<h3>Croissant</h3>
+							<span class="detail-score">{post.croissant}/5</span>
 						</div>
 						<p class="rating-detail-text">{post.croissantComment}</p>
+					</div>
+				)}
+
+				{post.cakesAndPastries && post.cakesAndPastriesComment && (
+					<div id="rating-cakes-pastries" class="rating-detail">
+						<div class="rating-detail-header">
+							<CakeSlice size={24} />
+							<h3>Cakes & Pastries</h3>
+							<span class="detail-score">{post.cakesAndPastries}/5</span>
+						</div>
+						<p class="rating-detail-text">{post.cakesAndPastriesComment}</p>
+					</div>
+				)}
+
+				{post.drinks && post.drinksComment && (
+					<div id="rating-drinks" class="rating-detail">
+						<div class="rating-detail-header">
+							<CupSoda size={24} />
+							<h3>Drinks</h3>
+							<span class="detail-score">{post.drinks}/5</span>
+						</div>
+						<p class="rating-detail-text">{post.drinksComment}</p>
 					</div>
 				)}
 			</section>
 		)}
 
-		{/* Contact & Location */}
-		{(post.address || post.phone || post.website) && (
+		{hasAtmosphere && (
+			<>
+				{/* Size & Layout */}
+				{(post.atmosphere!.tableSize || post.atmosphere!.indoorSeating != null || post.atmosphere!.outdoorSeating != null || post.atmosphere!.spaceNotes) && (
+					<section class="info-section size-layout-section">
+						<h2>Size &amp; Layout</h2>
+						<div class="info-grid">
+							{post.atmosphere!.tableSize && (
+								<div class="info-item"><span class="info-label">Table Size</span><span class="info-value">{post.atmosphere!.tableSize}</span></div>
+							)}
+							{post.atmosphere!.indoorSeating != null && (
+								<div class="info-item"><span class="info-label">Indoor Seats</span><span class="info-value">{post.atmosphere!.indoorSeating}</span></div>
+							)}
+							{post.atmosphere!.outdoorSeating != null && (
+								<div class="info-item"><span class="info-label">Outdoor Seats</span><span class="info-value">{post.atmosphere!.outdoorSeating}</span></div>
+							)}
+						</div>
+						{post.atmosphere!.spaceNotes && <p class="info-notes">{post.atmosphere!.spaceNotes}</p>}
+					</section>
+				)}
+
+				{/* Style */}
+				{(hasInterior || post.styleKeywords?.length || post.atmosphere!.vibeNotes) && (
+					<section class="info-section style-section">
+						<h2>Style</h2>
+						{hasInterior && (
+							<div class="info-block">
+								<p class="info-text">{post.atmosphere!.interiorDescription}</p>
+							</div>
+						)}
+						{post.styleKeywords && post.styleKeywords.length > 0 && (
+							<div class="tag-chips">
+								{post.styleKeywords.map(kw => (
+									<span class="tag-chip style-chip">{kw}</span>
+								))}
+							</div>
+						)}
+						{post.atmosphere!.vibeNotes && (
+							<div class="info-block">
+								<h3>Notes</h3>
+								<p class="info-text">{post.atmosphere!.vibeNotes}</p>
+							</div>
+						)}
+					</section>
+				)}
+
+				{/* Ambiance & Comfort */}
+				{(post.atmosphere!.lighting || post.atmosphere!.noiseLevel || post.atmosphere!.seatingTypes?.length || post.atmosphere!.seatingComfort || post.atmosphere!.music || post.atmosphere!.staff) && (
+					<section class="info-section ambiance-section">
+						<h2>Ambiance &amp; Comfort</h2>
+						<div class="info-grid">
+							{post.atmosphere!.lighting && (
+								<div class="info-item"><span class="info-label">Lighting</span><span class="info-value">{post.atmosphere!.lighting}</span></div>
+							)}
+							{post.atmosphere!.noiseLevel && (
+								<div class="info-item"><span class="info-label">Noise Level</span><span class="info-value">{post.atmosphere!.noiseLevel}</span></div>
+							)}
+							{post.atmosphere!.seatingTypes && post.atmosphere!.seatingTypes.length > 0 && (
+								<div class="info-item"><span class="info-label">Seating Types</span><span class="info-value">{post.atmosphere!.seatingTypes.join(', ')}</span></div>
+							)}
+							{post.atmosphere!.seatingComfort && (
+								<div class="info-item"><span class="info-label">Seating Comfort</span><span class="info-value">{post.atmosphere!.seatingComfort}/5</span></div>
+							)}
+						</div>
+
+						{post.atmosphere!.music && (post.atmosphere!.music.genre || post.atmosphere!.music.volume) && (
+							<div class="info-block">
+								<h3>Music</h3>
+								<div class="info-grid">
+									{post.atmosphere!.music.genre && (
+										<div class="info-item"><span class="info-label">Genre</span><span class="info-value">{post.atmosphere!.music.genre}</span></div>
+									)}
+									{post.atmosphere!.music.volume && (
+										<div class="info-item"><span class="info-label">Volume</span><span class="info-value">{post.atmosphere!.music.volume}</span></div>
+									)}
+								</div>
+								{post.atmosphere!.music.notes && <p class="info-notes">{post.atmosphere!.music.notes}</p>}
+							</div>
+						)}
+
+						{post.atmosphere!.staff && (post.atmosphere!.staff.friendliness || post.atmosphere!.staff.professionalism || post.atmosphere!.staff.attentiveness) && (
+							<div class="info-block">
+								<h3>Staff</h3>
+								<div class="info-grid">
+									{post.atmosphere!.staff.friendliness && (
+										<div class="info-item"><span class="info-label">Friendliness</span><span class="info-value">{post.atmosphere!.staff.friendliness}/5</span></div>
+									)}
+									{post.atmosphere!.staff.professionalism && (
+										<div class="info-item"><span class="info-label">Professionalism</span><span class="info-value">{post.atmosphere!.staff.professionalism}/5</span></div>
+									)}
+									{post.atmosphere!.staff.attentiveness && (
+										<div class="info-item"><span class="info-label">Attentiveness</span><span class="info-value">{post.atmosphere!.staff.attentiveness}/5</span></div>
+									)}
+								</div>
+								{post.atmosphere!.staff.notes && <p class="info-notes">{post.atmosphere!.staff.notes}</p>}
+							</div>
+						)}
+					</section>
+				)}
+			</>
+		)}
+
+		{(post.address || post.phone || post.website || post.email || (post.openingHours && post.openingHours.length > 0)) && (
 			<section class="contact-section">
-				<h4>Location & Contact</h4>
+				<h2>Location &amp; Contact</h2>
+				
+				{post.openingHours && post.openingHours.length > 0 && (
+					<div class="info-block opening-hours-block">
+						<h3><Clock size={18} /> Opening Hours</h3>
+						<ul class="opening-hours-list">
+							{post.openingHours.map(hours => (
+								<li>{hours}</li>
+							))}
+						</ul>
+					</div>
+				)}
+
 				<div class="contact-grid">
 					{post.address && (
 						<div class="contact-item">
@@ -137,6 +406,12 @@ const contentHtml = post.content ? toHTML(post.content) : '';
 						<div class="contact-item">
 							<Phone size={20} />
 							<a href={`tel:${post.phone}`}>{post.phone}</a>
+						</div>
+					)}
+					{post.email && (
+						<div class="contact-item">
+							<Mail size={20} />
+							<a href={`mailto:${post.email}`}>{post.email}</a>
 						</div>
 					)}
 					{post.website && (
@@ -171,6 +446,55 @@ const contentHtml = post.content ? toHTML(post.content) : '';
 		margin-top: 2rem;
 	}
 
+	.tag-section {
+		margin: 2rem 0;
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	.tag-group {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.75rem;
+		flex-wrap: wrap;
+	}
+
+	.tag-group-label {
+		display: flex;
+		align-items: center;
+		gap: 0.35rem;
+		font-size: 0.85rem;
+		font-weight: 700;
+		color: #555;
+		min-width: 5rem;
+		padding-top: 0.25rem;
+	}
+
+	.tag-chips {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4rem;
+	}
+
+	.tag-chip {
+		padding: 0.3rem 0.8rem;
+		border-radius: 999px;
+		font-size: 0.82rem;
+		font-weight: 600;
+		border: 1px solid transparent;
+		transition: transform 0.15s ease;
+	}
+
+	.tag-chip:hover {
+		transform: scale(1.05);
+	}
+
+	.vibe-chip { background: #fef3e2; color: #b45309; border-color: #fde0b3; }
+	.food-chip { background: #e8f5e9; color: #2e7d32; border-color: #c8e6c9; }
+	.drinks-chip { background: #e3f2fd; color: #1565c0; border-color: #bbdefb; }
+	.facilities-chip { background: #f3e5f5; color: #7b1fa2; border-color: #e1bee7; }
+	.style-chip { background: #fce4ec; color: #c2185b; border-color: #f8bbd0; }
 
 	.review-body {
 		margin-bottom: 3rem;
@@ -181,19 +505,17 @@ const contentHtml = post.content ? toHTML(post.content) : '';
 		margin: 3rem 0;
 	}
 
-	.rating-details h2 {
+	.rating-details h2, .info-section h2 {
 		margin-bottom: 2rem;
 		color: #333;
 	}
 
 	.rating-detail {
-		margin-bottom: 2.5rem;
-		padding-bottom: 2.5rem;
-		border-bottom: 1px solid #e8e8e8;
-	}
-
-	.rating-detail:last-child {
-		border-bottom: none;
+		margin-bottom: 1.5rem;
+		padding: 1.5rem;
+		background: linear-gradient(135deg, #fef9f4 0%, #fff5ec 100%);
+		border: 1px solid #f0d5b8;
+		border-radius: 12px;
 	}
 
 	.rating-detail-header {
@@ -222,6 +544,122 @@ const contentHtml = post.content ? toHTML(post.content) : '';
 		line-height: 1.8;
 		color: #555;
 		font-size: 1.05rem;
+	}
+
+	.info-section {
+		margin: 3rem 0;
+		padding-top: 3rem;
+		border-top: 2px solid #e8e8e8;
+	}
+
+	.info-block {
+		margin-bottom: 2rem;
+	}
+
+	.info-block h3 {
+		font-size: 1.15rem;
+		color: #444;
+		margin: 0 0 0.75rem 0;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.workability-facilities {
+		display: flex;
+		gap: 1.5rem;
+		margin-top: 1rem;
+		padding-top: 1rem;
+		border-top: 1px solid #f0d5b8;
+	}
+
+	.facility-item {
+		flex: 1;
+		min-width: 0;
+	}
+
+	.facility-item h4 {
+		display: flex;
+		align-items: center;
+		gap: 0.4rem;
+		font-size: 0.85rem;
+		color: #888;
+		margin: 0 0 0.35rem 0;
+		font-weight: 600;
+	}
+
+	.facility-details {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4rem;
+	}
+
+	.facility-details span {
+		font-size: 0.8rem;
+		color: #666;
+		background: rgba(255,255,255,0.6);
+		padding: 0.15rem 0.55rem;
+		border-radius: 999px;
+		text-transform: capitalize;
+	}
+
+	.info-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+		gap: 0.75rem;
+		margin-bottom: 0.75rem;
+	}
+
+	.info-item {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		background: #f8f6f3;
+		padding: 0.5rem 0.9rem;
+		border-radius: 8px;
+	}
+
+	.info-label {
+		font-size: 0.85rem;
+		color: #888;
+		font-weight: 500;
+	}
+
+	.info-value {
+		font-size: 0.9rem;
+		color: #333;
+		font-weight: 600;
+		text-transform: capitalize;
+	}
+
+	.info-text {
+		margin: 0;
+		line-height: 1.7;
+		color: #555;
+	}
+
+	.info-notes {
+		margin: 0.5rem 0 0 0;
+		font-size: 0.9rem;
+		color: #777;
+		font-style: italic;
+		line-height: 1.6;
+	}
+
+	.opening-hours-block {
+		margin-bottom: 1.5rem;
+	}
+
+	.opening-hours-list {
+		list-style: none;
+		padding: 0;
+		margin: 0.5rem 0 0 0;
+	}
+
+	.opening-hours-list li {
+		padding: 0.3rem 0;
+		color: #555;
+		font-size: 0.95rem;
 	}
 
 	.contact-section {
@@ -263,10 +701,21 @@ const contentHtml = post.content ? toHTML(post.content) : '';
 		border-radius: 12px;
 		overflow: hidden;
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-		border-radius: 1rem;
 	}
 
 	.map-container iframe {
 		display: block;
+	}
+
+	@media (max-width: 768px) {
+		.workability-facilities {
+			flex-direction: column;
+		}
+
+		.info-grid {
+			grid-template-columns: 1fr;
+		}
+
+
 	}
 </style>
