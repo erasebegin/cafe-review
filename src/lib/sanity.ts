@@ -48,6 +48,8 @@ export const cafesQuery = `*[_type == "cafe"] | order(_updatedAt desc) {
   coffeeCraftsmanshipRating,
   healthFocusRating,
   croissantRating,
+  cakesAndPastriesRating,
+  drinksRating,
   food,
   drinks,
   facilities
