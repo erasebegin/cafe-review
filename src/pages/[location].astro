@@ -118,7 +118,9 @@ const bannerImageUrls = location.bannerImages?.filter(img => img && img.asset).m
                   data-workability={cafe.workability || 0}
                   data-coffee={cafe.coffeeCraftsmanship || 0}
                   data-health={cafe.healthFocus || 0}
-                  data-pastries={cafe.pastries || 0}
+                  data-croissant={cafe.croissant || 0}
+                  data-cakes-pastries={cafe.cakesAndPastries || 0}
+                  data-drinks={cafe.drinks || 0}
                   data-date={cafe.pubDate.getTime()}
                 >
                   <ReviewCard
@@ -134,7 +136,9 @@ const bannerImageUrls = location.bannerImages?.filter(img => img && img.asset).m
                     workability={cafe.workability}
                     coffeeCraftsmanship={cafe.coffeeCraftsmanship}
                     healthFocus={cafe.healthFocus}
-                    pastries={cafe.pastries}
+                    croissant={cafe.croissant}
+                    cakesAndPastries={cafe.cakesAndPastries}
+                    drinks={cafe.drinks}
                   />
                 </div>
               ))}

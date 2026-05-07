@@ -1,5 +1,5 @@
 ---
-import { Leaf, Wheat, Laptop, Coffee, Salad, Croissant } from 'lucide-astro';
+import { Leaf, Wheat, Laptop, Coffee, Salad, Croissant, CakeSlice, CupSoda } from 'lucide-astro';
 
 interface Props {
   title: string;
@@ -17,7 +17,9 @@ interface Props {
   workability?: number;
   coffeeCraftsmanship?: number;
   healthFocus?: number;
-  pastries?: number;
+  croissant?: number;
+  cakesAndPastries?: number;
+  drinks?: number;
 }
 
 const { 
@@ -33,7 +35,9 @@ const {
   workability,
   coffeeCraftsmanship,
   healthFocus,
-  pastries
+  croissant,
+  cakesAndPastries,
+  drinks
 } = Astro.props;
 
 const averageRating = rating || 0;
@@ -108,10 +112,22 @@ const locationSlug = location?.slug || '';
           <span class="rating-value">{healthFocus}/5</span>
         </div>
       )}
-      {pastries && (
-        <div class="rating-item" title="Pastries" data-category="pastries">
+      {croissant && (
+        <div class="rating-item" title="Croissant" data-category="croissant">
           <Croissant class="rating-icon" size={16} />
-          <span class="rating-value">{pastries}/5</span>
+          <span class="rating-value">{croissant}/5</span>
+        </div>
+      )}
+      {cakesAndPastries && (
+        <div class="rating-item" title="Cakes & Pastries" data-category="cakesPastries">
+          <CakeSlice class="rating-icon" size={16} />
+          <span class="rating-value">{cakesAndPastries}/5</span>
+        </div>
+      )}
+      {drinks && (
+        <div class="rating-item" title="Drinks" data-category="drinks">
+          <CupSoda class="rating-icon" size={16} />
+          <span class="rating-value">{drinks}/5</span>
         </div>
       )}
     </div>

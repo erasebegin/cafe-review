@@ -1,5 +1,5 @@
 ---
-import { Leaf, Wheat, Laptop, Coffee, Salad, Croissant } from 'lucide-astro';
+import { Leaf, Wheat, Laptop, Coffee, Salad, Croissant, CakeSlice, CupSoda } from 'lucide-astro';
 import type { BlogPost } from '../types/sanity';
 
 interface Props {
@@ -82,17 +82,45 @@ const { post } = Astro.props;
 				</div>
 			</a>
 		)}
-		{post.pastries && (
-			<a href="#rating-pastries" class="rating-bar-link">
+		{post.croissant && (
+			<a href="#rating-croissant" class="rating-bar-link">
 				<div class="rating-bar-row">
 					<div class="rating-bar-label">
 						<Croissant size={18} />
-						<span>Pastries</span>
+						<span>Croissant</span>
 					</div>
 					<div class="rating-bar-track">
-						<div class="rating-bar-fill" style={`width: ${(post.pastries / 5) * 100}%`}></div>
+						<div class="rating-bar-fill" style={`width: ${(post.croissant / 5) * 100}%`}></div>
 					</div>
-					<div class="rating-bar-score">{post.pastries}/5</div>
+					<div class="rating-bar-score">{post.croissant}/5</div>
+				</div>
+			</a>
+		)}
+		{post.cakesAndPastries && (
+			<a href="#rating-cakes-pastries" class="rating-bar-link">
+				<div class="rating-bar-row">
+					<div class="rating-bar-label">
+						<CakeSlice size={18} />
+						<span>Cakes & Pastries</span>
+					</div>
+					<div class="rating-bar-track">
+						<div class="rating-bar-fill" style={`width: ${(post.cakesAndPastries / 5) * 100}%`}></div>
+					</div>
+					<div class="rating-bar-score">{post.cakesAndPastries}/5</div>
+				</div>
+			</a>
+		)}
+		{post.drinks && (
+			<a href="#rating-drinks" class="rating-bar-link">
+				<div class="rating-bar-row">
+					<div class="rating-bar-label">
+						<CupSoda size={18} />
+						<span>Drinks</span>
+					</div>
+					<div class="rating-bar-track">
+						<div class="rating-bar-fill" style={`width: ${(post.drinks / 5) * 100}%`}></div>
+					</div>
+					<div class="rating-bar-score">{post.drinks}/5</div>
 				</div>
 			</a>
 		)}

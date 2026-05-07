@@ -38,7 +38,9 @@ const ratingFields = [
 	post?.workability,
 	post?.coffeeCraftsmanship,
 	post?.healthFocus,
-	post?.pastries,
+	post?.croissant,
+	post?.cakesAndPastries,
+	post?.drinks,
 ].filter((v): v is number => typeof v === 'number' && v > 0);
 const avgRating = ratingFields.length > 0
 	? Number((ratingFields.reduce((a, b) => a + b, 0) / ratingFields.length).toFixed(2))

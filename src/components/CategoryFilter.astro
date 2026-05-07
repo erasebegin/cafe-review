@@ -1,5 +1,5 @@
 ---
-import { Leaf, Wheat, Laptop, Coffee, Salad, Croissant } from 'lucide-astro';
+import { Leaf, Wheat, Laptop, Coffee, Salad, Croissant, CakeSlice, CupSoda } from 'lucide-astro';
 
 export interface Props {
   reviewGridId?: string;
@@ -14,7 +14,9 @@ const categories = [
   { key: 'workability', icon: Laptop, label: 'Workability' },
   { key: 'coffee', icon: Coffee, label: 'Coffee' },
   { key: 'health', icon: Salad, label: 'Health' },
-  { key: 'pastries', icon: Croissant, label: 'Pastries' },
+  { key: 'croissant', icon: Croissant, label: 'Croissant' },
+  { key: 'cakesPastries', icon: CakeSlice, label: 'Cakes & Pastries' },
+  { key: 'drinks', icon: CupSoda, label: 'Drinks' },
 ] as const;
 ---
 
@@ -40,7 +42,9 @@ const categories = [
       workability: 'workability',
       coffee: 'coffee',
       health: 'health',
-      pastries: 'pastries',
+      croissant: 'croissant',
+      cakesPastries: 'cakesPastries',
+      drinks: 'drinks',
     };
 
     function clearHighlights() {
