@@ -16,6 +16,8 @@ interface Props {
 	article?: boolean;
 	locale?: string;
 	noindex?: boolean;
+	pubDate?: Date;
+	updatedDate?: Date;
 }
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
@@ -28,6 +30,8 @@ const {
 	article = false,
 	locale = SITE_LOCALE,
 	noindex = false,
+	pubDate,
+	updatedDate,
 } = Astro.props;
 
 // Resolve image src whether passed as ImageMetadata or as a string URL.
@@ -55,7 +59,7 @@ const ogImageURL = new URL(imageSrc, Astro.url);
 <meta name="generator" content={Astro.generator} />
 <meta name="author" content={SITE_TITLE} />
 <meta name="theme-color" content="#ff6b35" />
-{noindex && <meta name="robots" content="noindex,nofollow" />}
+<meta name="robots" content={noindex ? 'noindex,nofollow' : 'index,follow'} />
 
 <!-- Font preloads -->
 <link rel="preload" href="/fonts/atkinson-regular.woff" as="font" type="font/woff" crossorigin />
@@ -80,6 +84,8 @@ const ogImageURL = new URL(imageSrc, Astro.url);
 <meta property="og:image:alt" content={imageAlt} />
 <meta property="og:site_name" content={SITE_TITLE} />
 <meta property="og:locale" content={locale} />
+{article && pubDate && <meta property="article:published_time" content={pubDate.toISOString()} />}
+{article && updatedDate && <meta property="article:modified_time" content={updatedDate.toISOString()} />}
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image" />

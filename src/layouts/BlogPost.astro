@@ -24,9 +24,12 @@ const { title, description, pubDate, updatedDate, heroImage, post, showLastUpdat
 const carouselImages = Array.from(new Set([heroImage, ...(post?.images || [])].filter(Boolean))) as string[];
 
 // Compose page-level SEO title with brand suffix.
+// When seoTitle is set in Sanity, use it verbatim (it's the author-curated title).
+// Otherwise: "Cafe Name — City Cafe Review" or "Cafe Name — Cafe Review 2025".
+const currentYear = new Date().getFullYear();
 const metaTitle = post?.seoTitle || (post?.location?.cityName
 	? `${title} — ${post.location.cityName} Cafe Review`
-	: `${title} | ${SITE_TITLE}`);
+	: `${title} — Cafe Review ${currentYear}`);
 const metaDescription = post?.seoDescription || description;
 const pageUrl = post ? `${SITE_URL}/cafe/${post.slug}/` : SITE_URL;
 
@@ -127,6 +130,8 @@ const breadcrumbJsonLd = {
 			image={heroImage}
 			imageAlt={title}
 			article={true}
+			pubDate={pubDate}
+			updatedDate={updatedDate}
 		/>
 		<script type="application/ld+json" set:html={JSON.stringify(reviewJsonLd)} />
 		<script type="application/ld+json" set:html={JSON.stringify(breadcrumbJsonLd)} />
