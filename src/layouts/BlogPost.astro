@@ -53,7 +53,13 @@ const itemReviewed: Record<string, unknown> = {
 	'@type': 'CafeOrCoffeeShop',
 	name: title,
 	url: pageUrl,
-	...(heroImage && { image: heroImage }),
+	...(heroImage && {
+		image: {
+			'@type': 'ImageObject',
+			url: heroImage,
+			caption: title,
+		},
+	}),
 	...(post?.address && { address: post.address }),
 	...(post?.phone && { telephone: post.phone }),
 	...(post?.openingHours && post.openingHours.length > 0 && { openingHours: post.openingHours }),
@@ -73,7 +79,20 @@ const reviewJsonLd: Record<string, unknown> = {
 	headline: title,
 	description: metaDescription,
 	url: pageUrl,
-	...(heroImage && { image: heroImage }),
+	...(heroImage && {
+		image: [
+			{
+				'@type': 'ImageObject',
+				url: heroImage,
+				caption: title,
+			},
+			...(post?.images || []).map((url) => ({
+				'@type': 'ImageObject',
+				url,
+				caption: title,
+			})),
+		],
+	}),
 	datePublished: pubDate.toISOString(),
 	...(updatedDate && { dateModified: updatedDate.toISOString() }),
 	author: {
@@ -381,7 +400,7 @@ const breadcrumbJsonLd = {
 									<div class="carousel-slide">
 										<img
 											src={src}
-											alt={`${title} - image ${idx + 1}`}
+											alt={`Photo ${idx + 1} of ${title}${post?.location?.cityName ? `, ${post.location.cityName}` : ''}`}
 											width="1020"
 											height="510"
 											loading={idx === 0 ? "eager" : "lazy"}

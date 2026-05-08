@@ -5,17 +5,20 @@ import Footer from '../../components/Footer.astro';
 import FormattedDate from '../../components/FormattedDate.astro';
 import Header from '../../components/Header.astro';
 import PostHogLayout from '../../layouts/PostHogLayout.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+import { SITE_TITLE } from '../../consts';
 import { getAllBlogPosts } from '../../lib/sanity-utils';
 
 const posts = await getAllBlogPosts();
+
+const pageTitle = `All Cafe Reviews | ${SITE_TITLE}`;
+const pageDescription = 'Browse every cafe review on Cafe Review. Honest ratings for vegan options, gluten-free, workability, coffee craftsmanship, health focus, and pastries across Europe.';
 ---
 
 <PostHogLayout>
 <!doctype html>
 <html lang="en">
 	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<BaseHead title={pageTitle} description={pageDescription} />
 		<style>
 			main {
 				width: 960px;
@@ -69,6 +72,18 @@ const posts = await getAllBlogPosts();
 			ul a:hover img {
 				box-shadow: var(--box-shadow);
 			}
+			h1 {
+				font-size: 2.5rem;
+				margin: 0 0 0.5rem 0;
+				color: var(--ink-brown);
+			}
+			.listing-intro {
+				font-size: 1.1rem;
+				color: #666;
+				margin: 0 0 2.5rem 0;
+				line-height: 1.6;
+				max-width: 720px;
+			}
 			@media (max-width: 720px) {
 				ul {
 					gap: 0.5em;
@@ -83,6 +98,12 @@ const posts = await getAllBlogPosts();
 				ul li:first-child .title {
 					font-size: 1.563em;
 				}
+				h1 {
+					font-size: 2rem;
+				}
+				.listing-intro {
+					font-size: 1rem;
+				}
 			}
 		</style>
 	</head>
@@ -90,6 +111,8 @@ const posts = await getAllBlogPosts();
 		<Header />
 		<main>
 			<section>
+				<h1>All Cafe Reviews</h1>
+				<p class="listing-intro">Every cafe we&rsquo;ve reviewed across Europe &mdash; sorted by most recently updated. Click through for detailed ratings on vegan options, gluten-free, workability, coffee craftsmanship, health focus, and pastries.</p>
 				<ul>
 					{
 						posts.map((post) => (
