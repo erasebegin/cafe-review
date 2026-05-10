@@ -4,6 +4,7 @@ import { readFileSync, writeFileSync, existsSync } from "fs";
 import { homedir } from "os";
 import { join } from "path";
 import { randomBytes } from "crypto";
+import { scrapeCafeContact } from "./scrape-contact.js";
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
@@ -21,6 +22,8 @@ const DRY_RUN = process.argv.includes("--dry-run");
 // After a schema migration, run with `--force` (alias `--all`) to ignore the
 // manifest and re-push every note under the new shape.
 const FORCE = process.argv.includes("--force") || process.argv.includes("--all");
+// After uploading a cafe, also scrape its contact info online (phone, email, socials).
+const SCRAPE_CONTACT = process.argv.includes("--scrape");
 
 // Cafes that exist in Sanity but not in Joplin should never be touched by
 // this script. `Carafe` is one such doc; guarded defensively.
@@ -961,7 +964,33 @@ async function main() {
     try {
       console.log("  ⏳ Uploading to Sanity (preserving images)...");
       const docId = await uploadToSanity(parsed);
-      console.log(`  ✓ Uploaded as ${docId}\n`);
+      console.log(`  ✓ Uploaded as ${docId}`);
+
+      // ── Optional: scrape contact info online ───────────────────────────
+      if (SCRAPE_CONTACT) {
+        console.log("  🕵️  Scraping contact info from the web...");
+        try {
+          const contactInfo = await scrapeCafeContact({
+            name: parsed.title,
+            city: parsed.locationCity,
+            address: parsed.address,
+          });
+          const patch: Record<string, string> = {};
+          if (contactInfo.phone) patch.phoneNumber = contactInfo.phone;
+          if (contactInfo.email) patch.email = contactInfo.email;
+          if (contactInfo.instagram) patch.instagram = contactInfo.instagram;
+          if (contactInfo.facebook) patch.facebook = contactInfo.facebook;
+          if (Object.keys(patch).length > 0) {
+            await sanity.patch(docId).set(patch).commit();
+            console.log(`  ✓ Contact info updated: ${Object.keys(patch).join(", ")}`);
+          } else {
+            console.log("  ⚠️  No contact info found on the web.");
+          }
+        } catch (err) {
+          console.warn(`  ⚠️  Contact scraping failed (non-fatal): ${err}`);
+        }
+      }
+      console.log();
 
       manifest[note.id] = {
         sanityDocId: docId,

@@ -4,7 +4,7 @@ import PostHogLayout from '../../layouts/PostHogLayout.astro';
 import RatingsChart from '../../components/RatingsChart.astro';
 import { getAllBlogSlugs, getBlogPostBySlug } from '../../lib/sanity-utils';
 import { toHTML } from '@portabletext/to-html';
-import { Leaf, Wheat, Laptop, Coffee, Salad, Croissant, MapPin, Phone, Mail, Instagram, Facebook, CakeSlice, CupSoda, Tag, ChefHat, Sparkles, Waves, Wifi, Plug, Monitor, Clock } from 'lucide-astro';
+import { Leaf, Wheat, Laptop, Coffee, Salad, Croissant, MapPin, Phone, Mail, Instagram, Facebook, CakeSlice, CupSoda, Tag, ChefHat, Sparkles, Waves, Wifi, Plug, Monitor, Clock, Palette, Music } from 'lucide-astro';
 
 export async function getStaticPaths() {
 	const slugs = await getAllBlogSlugs();
@@ -56,11 +56,19 @@ const facilitiesLabelMap: Record<string, string> = {
 	'toilets': 'Toilets', 'wifi': 'WiFi', 'plug_sockets': 'Plug Sockets'
 };
 
+const hasMusic = post.atmosphere?.music && (
+	post.atmosphere.music.genre || post.atmosphere.music.volume || post.atmosphere.music.notes
+);
+
+const musicGenres = post.atmosphere?.music?.genre
+	? post.atmosphere.music.genre.split(',').map(g => g.trim()).filter(Boolean)
+	: [];
+
 const hasAtmosphere = post.atmosphere && (
 	post.atmosphere.seatingComfort || post.atmosphere.seatingTypes?.length ||
 	post.atmosphere.tableSize || post.atmosphere.indoorSeating || post.atmosphere.outdoorSeating ||
-	post.atmosphere.spaceNotes || post.atmosphere.lighting || post.atmosphere.noiseLevel ||
-	post.atmosphere.music || post.atmosphere.interiorDescription ||
+	post.atmosphere.spaceNotes || post.atmosphere.noiseLevel ||
+	hasMusic || post.atmosphere.interiorDescription ||
 	post.styleKeywords?.length
 );
 
@@ -300,24 +308,37 @@ const hasWorkabilityContent = post.workability || hasWorkabilityFacilities;
 				)}
 
 				{/* Style */}
-				{(hasInterior || post.styleKeywords?.length || post.atmosphere!.vibeNotes) && (
+				{(hasInterior || post.styleKeywords?.length || musicGenres.length > 0 || post.atmosphere!.vibeNotes) && (
 					<section class="info-section style-section">
 						<h2>Style</h2>
-						{hasInterior && (
-							<div class="info-block">
-								<p class="info-text">{post.atmosphere!.interiorDescription}</p>
+						{(post.styleKeywords && post.styleKeywords.length > 0 || musicGenres.length > 0) && (
+							<div class="tag-chips">
+								{post.styleKeywords && post.styleKeywords.map(kw => (
+									<span class="tag-chip style-chip"><Palette size={12} /> {kw}</span>
+								))}
+								{musicGenres.map(genre => (
+									<span class="tag-chip music-chip"><Music size={12} /> {genre}</span>
+								))}
 							</div>
 						)}
-						{post.styleKeywords && post.styleKeywords.length > 0 && (
-							<div class="tag-chips">
-								{post.styleKeywords.map(kw => (
-									<span class="tag-chip style-chip">{kw}</span>
-								))}
+						{hasMusic && (post.atmosphere!.music!.volume || post.atmosphere!.music!.notes) && (
+							<div class="info-block">
+								<h3><Music size={16} /> Music Details</h3>
+								{post.atmosphere!.music!.volume && (
+									<p class="info-text">Volume: <strong>{post.atmosphere!.music!.volume}</strong></p>
+								)}
+								{post.atmosphere!.music!.notes && <p class="info-notes">{post.atmosphere!.music!.notes}</p>}
+							</div>
+						)}
+						{hasInterior && (
+							<div class="info-block">
+								<h3>Interior</h3>
+								<p class="info-text">{post.atmosphere!.interiorDescription}</p>
 							</div>
 						)}
 						{post.atmosphere!.vibeNotes && (
 							<div class="info-block">
-								<h3>Notes</h3>
+								<h3>Vibe</h3>
 								<p class="info-text">{post.atmosphere!.vibeNotes}</p>
 							</div>
 						)}
@@ -325,13 +346,10 @@ const hasWorkabilityContent = post.workability || hasWorkabilityFacilities;
 				)}
 
 				{/* Ambiance & Comfort */}
-				{(post.atmosphere!.lighting || post.atmosphere!.noiseLevel || post.atmosphere!.seatingTypes?.length || post.atmosphere!.seatingComfort || post.atmosphere!.music || post.atmosphere!.staff) && (
+				{(post.atmosphere!.noiseLevel || post.atmosphere!.seatingTypes?.length || post.atmosphere!.seatingComfort) && (
 					<section class="info-section ambiance-section">
 						<h2>Ambiance &amp; Comfort</h2>
 						<div class="info-grid">
-							{post.atmosphere!.lighting && (
-								<div class="info-item"><span class="info-label">Lighting</span><span class="info-value">{post.atmosphere!.lighting}</span></div>
-							)}
 							{post.atmosphere!.noiseLevel && (
 								<div class="info-item"><span class="info-label">Noise Level</span><span class="info-value">{post.atmosphere!.noiseLevel}</span></div>
 							)}
@@ -342,39 +360,6 @@ const hasWorkabilityContent = post.workability || hasWorkabilityFacilities;
 								<div class="info-item"><span class="info-label">Seating Comfort</span><span class="info-value">{post.atmosphere!.seatingComfort}/5</span></div>
 							)}
 						</div>
-
-						{post.atmosphere!.music && (post.atmosphere!.music.genre || post.atmosphere!.music.volume) && (
-							<div class="info-block">
-								<h3>Music</h3>
-								<div class="info-grid">
-									{post.atmosphere!.music.genre && (
-										<div class="info-item"><span class="info-label">Genre</span><span class="info-value">{post.atmosphere!.music.genre}</span></div>
-									)}
-									{post.atmosphere!.music.volume && (
-										<div class="info-item"><span class="info-label">Volume</span><span class="info-value">{post.atmosphere!.music.volume}</span></div>
-									)}
-								</div>
-								{post.atmosphere!.music.notes && <p class="info-notes">{post.atmosphere!.music.notes}</p>}
-							</div>
-						)}
-
-						{post.atmosphere!.staff && (post.atmosphere!.staff.friendliness || post.atmosphere!.staff.professionalism || post.atmosphere!.staff.attentiveness) && (
-							<div class="info-block">
-								<h3>Staff</h3>
-								<div class="info-grid">
-									{post.atmosphere!.staff.friendliness && (
-										<div class="info-item"><span class="info-label">Friendliness</span><span class="info-value">{post.atmosphere!.staff.friendliness}/5</span></div>
-									)}
-									{post.atmosphere!.staff.professionalism && (
-										<div class="info-item"><span class="info-label">Professionalism</span><span class="info-value">{post.atmosphere!.staff.professionalism}/5</span></div>
-									)}
-									{post.atmosphere!.staff.attentiveness && (
-										<div class="info-item"><span class="info-label">Attentiveness</span><span class="info-value">{post.atmosphere!.staff.attentiveness}/5</span></div>
-									)}
-								</div>
-								{post.atmosphere!.staff.notes && <p class="info-notes">{post.atmosphere!.staff.notes}</p>}
-							</div>
-						)}
 					</section>
 				)}
 			</>
@@ -472,6 +457,7 @@ const hasWorkabilityContent = post.workability || hasWorkabilityFacilities;
 	}
 
 	.tag-chips {
+	padding-bottom: 2rem;
 		display: flex;
 		flex-wrap: wrap;
 		gap: 0.4rem;
@@ -495,6 +481,7 @@ const hasWorkabilityContent = post.workability || hasWorkabilityFacilities;
 	.drinks-chip { background: #e3f2fd; color: #1565c0; border-color: #bbdefb; }
 	.facilities-chip { background: #f3e5f5; color: #7b1fa2; border-color: #e1bee7; }
 	.style-chip { background: #fce4ec; color: #c2185b; border-color: #f8bbd0; }
+	.music-chip { background: #dceeee; color: #2c5f5f; border-color: #b8d8d8; }
 
 	.review-body {
 		margin-bottom: 3rem;
